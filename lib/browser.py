@@ -1,10 +1,11 @@
 import os
+import time
 import lib.framework
 from .browser_actions import *
-from .settings import settings
 from enum import Enum
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
 
 class BrowserType(Enum):
     Chrome = 0,
@@ -12,22 +13,24 @@ class BrowserType(Enum):
 class CBrowser():
 
     Driver = None
+    Settings = None
 
-    def __init__(self, type):
+    def __init__(self, _type, _settings):
 
+        self.Settings = _settings
         optionsList = ['--incognito']
 
         directorypath = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 
-        if type == BrowserType.Chrome:
+        if _type == BrowserType.Chrome:
             options = webdriver.ChromeOptions()
 
-            if settings.Document['workspace'] == 'Windows':
+            if self.Settings.Document['workspace'] == 'Windows':
                 options.add_argument('{}\chromedriver.exe'.format(directorypath))
-            elif settings.Document['workspace'] == 'Linux':
+            elif self.Settings.Document['workspace'] == 'Linux':
                 options.add_argument('{}\chromedriver'.format(directorypath))
             else:
-                raise ValueError('{} is an unkown workspace'.format(settings.Document['workspace']))
+                raise ValueError('{} is an unkown workspace'.format(self.Settings.Document['workspace']))
 
             for option in optionsList:
                 options.add_argument(option)
@@ -43,55 +46,63 @@ class CBrowser():
 
     def login(self):
         # Load website
-        self.Driver.get(settings.Document['weburl'])
+        self.Driver.get(self.Settings.Document['weburl'])
         # Set username
-        set_textboxByID(_driver=self.Driver, _id='user', _sendKeys=settings.Document['username'])
+        set_textbox(_driver=self.Driver, _type=By.ID, _tag='user', _sendKeys=self.Settings.Document['username'])
         # Set pwd
-        set_textboxByID(_driver=self.Driver, _id='password', _sendKeys=settings.Document['password'])
+        set_textbox(_driver=self.Driver, _type=By.ID, _tag='password', _sendKeys=self.Settings.Document['password'])
         # CLick login button
-        click_buttonByClassName(_driver=self.Driver, _className='button')
+        click_button(_driver=self.Driver, _type=By.CLASS_NAME,_tag='button')
+
+        # Wait until iFrame "dynamic" is fully loaded
+        wait_until_tag_is_present(_driver=self.Driver, _type=By.ID, _tag='dynamic')
+
+    def refresh(self):
+        self.Driver.refresh()
 
     def booktimes(self):
-        # Back to default frame
-        switch_toDefaultFrame(_driver=self.Driver)
         # Press Startzeiten
-        click_buttonByID(_driver=self.Driver, _id='pr_res_calendar')
+        click_button(_driver=self.Driver, _type=By.ID, _tag='pr_res_calendar')
+
+    def res_timeslots_available(self, _id):
+            return True
+
+    def set_date(self, _id=id):
+        switch_to_frame(_driver=self.Driver, _type=By.ID, _tag='dynamic')
+        # Set Date
+        set_textbox(_driver=self.Driver, _type=By.ID, _tag='date', _sendKeys=self.Settings.Document['round'][_id]['date'], _keyPress=Keys.ENTER, _options='control+a')
+
+    def set_course(self, _id=id):
+        # Set course
+        set_dropdown(_driver=self.Driver, _tag='ro_id', _target=self.Settings.Document['round'][_id]['course'].lower())
 
     def reservation(self, _id):
         # TODO: Check that all timeslots are free we want to book
-        # Switch to iFrame
-        switch_toIFrame(_driver=self.Driver, _iFrame='mainDynamicFrameArea')
-        # Set Date
-        set_textboxByID(_driver=self.Driver, _id='date', _sendKeys=settings.Document['round'][_id]['date'], _keyPress=Keys.ENTER, _options='control+a')
-        # Set course
-        set_dropdownCourseByName(_driver=self.Driver, _name='ro_id', _target=settings.Document['round'][_id]['course'].lower())
         # Set timeslot
-        select_timeslot(_driver=self.Driver, _timeslot=settings.Document['round'][_id]['timeslot_converted'])
+        select_timeslot(_driver=self.Driver, _timeslot=self.Settings.Document['round'][_id]['timeslot_converted'])
         # Switch to iFrame
-        switch_toIFrame(_driver=self.Driver, _iFrame='calendarDetailsDiv')
+        switch_to_frame(_driver=self.Driver, _type=By.ID, _tag='calendar_details')
         # Click reservation button
-        click_buttonByID(_driver=self.Driver, _id='btnMakeRes')
+        click_button(_driver=self.Driver, _type=By.ID, _tag='btnMakeRes')
 
     def partner_reservation(self, _id):
-        # Back to default frame
-        switch_toDefaultFrame(_driver=self.Driver)
-        # Switch to iFrame
-        switch_toIFrame(_driver=self.Driver, _iFrame='mainDynamicFrameArea')
         # Set partner
         for i in range(0, 4):
-            partner = settings.Document['round'][_id]['partner{}'.format(i)][0]
+            partner = self.Settings.Document['round'][_id]['partner{}'.format(i)][0]
             if partner['firstName'] != 'None' and partner['lastName'] != 'None':
                 # Set first name
-                set_textboxByName(_driver=self.Driver, _name='fname', _sendKeys=partner['firstName'])
+                set_textbox(_driver=self.Driver, _type=By.NAME, _tag='fname', _sendKeys=partner['firstName'])
                 # Set last name
-                set_textboxByName(_driver=self.Driver, _name='lname', _sendKeys=partner['lastName'])
+                set_textbox(_driver=self.Driver, _type=By.NAME, _tag='lname', _sendKeys=partner['lastName'])
                 # Click search button
-                click_buttonByID(_driver=self.Driver, _id='btnSearch')
+                click_button(_driver=self.Driver, _type=By.ID, _tag='btnSearch')
 
     def send_reservation(self):
-        pass
         # Make reservation
-        #click_buttonByID(_driver=self.Driver, _id='btnNext')
+        #click_button(_driver=self.Driver, _type=By.ID, _tag='btnNext')
+        time.sleep(5)
+        # Last step go back to default frame
+        switch_toDefaultFrame(_driver=self.Driver)
 
     def logout(self):
         pass
