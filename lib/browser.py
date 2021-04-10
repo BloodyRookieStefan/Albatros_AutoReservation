@@ -66,6 +66,7 @@ class CBrowser():
         click_button(_driver=self.Driver, _type=By.ID, _tag='pr_res_calendar')
 
     def res_timeslots_available(self, _id):
+        switch_to_frame(_driver=self.Driver, _type=By.ID, _tag='dynamic')
         element = get_timeslotByXPath(_driver=self.Driver, _timeslot=self.Settings.Document['round'][_id]['timeslot_converted'])
         if element is None:
             return False
@@ -121,13 +122,16 @@ class CBrowser():
                 click_button(_driver=self.Driver, _type=By.ID, _tag='btnSearch')
 
     def send_reservation(self):
-        # Make reservation
-        #click_button(_driver=self.Driver, _type=By.ID, _tag='btnNext')
-        #time.sleep(5)
-        pass
+        if not self.Settings.Document['developermode']:
+            # Make reservation
+            print('Reservation send')
+            click_button(_driver=self.Driver, _type=By.ID, _tag='btnNext')
+        else:
+            print('WARNING: Developer mode active. No reservation send')
 
     def move_default(self):
         switch_toDefaultFrame(_driver=self.Driver)
 
     def logout(self):
-        pass
+        switch_toDefaultFrame(_driver=self.Driver)
+        click_button(_driver=self.Driver, _type=By.ID, _tag='logout')

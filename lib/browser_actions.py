@@ -72,7 +72,6 @@ def get_timeslotByXPath(_driver, _timeslot):
     for element in elements:
         if timeslotFormatted == element.text:
             return element
-
     return None
 
 def check_timeslot(_driver, _timeslot):

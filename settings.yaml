@@ -6,8 +6,8 @@ round         :
     timeslot_h: 19
     timeslot_m: 52
     partner0  :
-      - firstName : None
-        lastName  : None
+      - firstName : Simon
+        lastName  : Geigenberger
     partner1  :
       - firstName : None
         lastName  : None
@@ -33,9 +33,10 @@ round         :
     partner3  :
       - firstName : None
         lastName  : None
-executedate   : 05.05.2021
-executetime_h : 09
-executetime_m : 09
-executetime_s : 09
+executedate   : 10.04.2021
+executetime_h : 15
+executetime_m : 17
+executetime_s : 00
 workspace     : Windows
 weburl        : https://albatros.gc-sl.de/albport/
+developermode : True
