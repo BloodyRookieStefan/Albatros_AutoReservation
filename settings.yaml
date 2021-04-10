@@ -1,9 +1,10 @@
 username      :
-password      :
+password      : 
 round         :
-  - date      : 07.04.2021
+  - date      : 10.04.2021
     course    : blau
-    timeslot  : 19.52
+    timeslot_h: 19
+    timeslot_m: 52
     partner0  :
       - firstName : None
         lastName  : None
@@ -16,9 +17,10 @@ round         :
     partner3  :
       - firstName : None
         lastName  : None
-  - date      : 07.04.2021
+  - date      : 10.04.2021
     course    : rot
-    timeslot  : 19.52
+    timeslot_h: 19
+    timeslot_m: 52
     partner0  :
       - firstName : None
         lastName  : None
@@ -32,7 +34,8 @@ round         :
       - firstName : None
         lastName  : None
 executedate   : 05.05.2021
-executetime   : 09.00.00
+executetime_h : 09
+executetime_m : 09
+executetime_s : 09
 workspace     : Windows
 weburl        : https://albatros.gc-sl.de/albport/
-developmode   : True

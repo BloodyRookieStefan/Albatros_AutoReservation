@@ -45,6 +45,7 @@ class CBrowser():
         self.Driver = None
 
     def login(self):
+        print('Website login...')
         # Load website
         self.Driver.get(self.Settings.Document['weburl'])
         # Set username
@@ -65,19 +66,36 @@ class CBrowser():
         click_button(_driver=self.Driver, _type=By.ID, _tag='pr_res_calendar')
 
     def res_timeslots_available(self, _id):
+        element = get_timeslotByXPath(_driver=self.Driver, _timeslot=self.Settings.Document['round'][_id]['timeslot_converted'])
+        if element is None:
+            return False
+        else:
             return True
 
-    def set_date(self, _id=id):
+    def set_date(self, _id):
+        print('Set date: {}'.format(self.Settings.Document['round'][_id]['date']))
         switch_to_frame(_driver=self.Driver, _type=By.ID, _tag='dynamic')
         # Set Date
         set_textbox(_driver=self.Driver, _type=By.ID, _tag='date', _sendKeys=self.Settings.Document['round'][_id]['date'], _keyPress=Keys.ENTER, _options='control+a')
 
-    def set_course(self, _id=id):
+    def set_course(self, _id):
+        print('Set course: {}'.format(self.Settings.Document['round'][_id]['course']))
         # Set course
         set_dropdown(_driver=self.Driver, _tag='ro_id', _target=self.Settings.Document['round'][_id]['course'].lower())
 
+    def check_timeslot(self, _id):
+        # Check if slot is full
+        val, msg = check_timeslot(_driver=self.Driver, _timeslot=self.Settings.Document['round'][_id]['timeslot_converted'])
+
+        if val < 0:
+            print('Check times failed: {} {} : {}'.format(self.Settings.Document['round'][_id]['date'], self.Settings.Document['round'][_id]['timeslot_converted'].strftime("%H:%M:%S"), msg))
+            return False
+        else:
+            print('Timeslot available: {} {}'.format(self.Settings.Document['round'][_id]['date'], self.Settings.Document['round'][_id]['timeslot_converted'].strftime("%H:%M:%S")))
+            return True
+
     def reservation(self, _id):
-        # TODO: Check that all timeslots are free we want to book
+        print('Booking time found. Start reservation: {}'.format(self.Settings.Document['round'][_id]['timeslot_converted'].strftime("%H:%M:%S")))
         # Set timeslot
         select_timeslot(_driver=self.Driver, _timeslot=self.Settings.Document['round'][_id]['timeslot_converted'])
         # Switch to iFrame
@@ -86,10 +104,15 @@ class CBrowser():
         click_button(_driver=self.Driver, _type=By.ID, _tag='btnMakeRes')
 
     def partner_reservation(self, _id):
+        # Toggle frames??? Without not working?
+        switch_toDefaultFrame(_driver=self.Driver)
+        switch_to_frame(_driver=self.Driver, _type=By.ID, _tag='dynamic')
+
         # Set partner
         for i in range(0, 4):
             partner = self.Settings.Document['round'][_id]['partner{}'.format(i)][0]
             if partner['firstName'] != 'None' and partner['lastName'] != 'None':
+                print('Partner reservation: {} {}'.format(partner['firstName'], partner['lastName']))
                 # Set first name
                 set_textbox(_driver=self.Driver, _type=By.NAME, _tag='fname', _sendKeys=partner['firstName'])
                 # Set last name
@@ -100,8 +123,10 @@ class CBrowser():
     def send_reservation(self):
         # Make reservation
         #click_button(_driver=self.Driver, _type=By.ID, _tag='btnNext')
-        time.sleep(5)
-        # Last step go back to default frame
+        #time.sleep(5)
+        pass
+
+    def move_default(self):
         switch_toDefaultFrame(_driver=self.Driver)
 
     def logout(self):

@@ -21,25 +21,24 @@ class CSettings:
 
     def convert_time_values(self):
         # Convert execution time
-        day = int(str(self.Document['executedate']).split('.')[0])
-        month = int(str(self.Document['executedate']).split('.')[1])
-        year = int(str(self.Document['executedate']).split('.')[2])
+        day = int(self.Document['executedate'].split('.')[0])
+        month = int(self.Document['executedate'].split('.')[1])
+        year = int(self.Document['executedate'].split('.')[2])
 
-        hour = int(str(self.Document['executetime']).split('.')[0])
-        minute = int(str(self.Document['executetime']).split('.')[1])
-        second = int(str(self.Document['executetime']).split('.')[2])
+        hour = int(self.Document['executetime_h'])
+        minute = int(self.Document['executetime_m'])
+        second = int(self.Document['executetime_s'])
 
         self.Document['executiontime_converted'] = datetime.datetime(year, month, day, hour, minute, second)
 
         # Convert timeslot times
         for round in self.Document['round']:
-            day = int(str(round['date']).split('.')[0])
-            month = int(str(round['date']).split('.')[1])
-            year = int(str(round['date']).split('.')[2])
+            day = int(round['date'].split('.')[0])
+            month = int(round['date'].split('.')[1])
+            year = int(round['date'].split('.')[2])
 
-            hour = int(str(round['timeslot']).split('.')[0])
-            minute = int(str(round['timeslot']).split('.')[1])
-
+            hour = int(round['timeslot_h'])
+            minute = int(round['timeslot_m'])
             round['timeslot_converted'] = datetime.datetime(year, month, day, hour, minute, 0)
 
 settings = CSettings()

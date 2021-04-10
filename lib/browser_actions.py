@@ -61,6 +61,8 @@ def set_dropdown(_driver, _tag, _target):
 
 def select_timeslot(_driver, _timeslot):
     element = get_timeslotByXPath(_driver, _timeslot)
+    if element == None:
+        raise ValueError('Could not find timeslot: {}'.format(_timeslot.strftime('%H:%M')))
     element.click()
 
 def get_timeslotByXPath(_driver, _timeslot):
@@ -71,7 +73,21 @@ def get_timeslotByXPath(_driver, _timeslot):
         if timeslotFormatted == element.text:
             return element
 
-    raise ValueError('Could not find timeslot: {}'.format(timeslotFormatted))
+    return None
+
+def check_timeslot(_driver, _timeslot):
+    select_timeslot(_driver=_driver, _timeslot=_timeslot)
+    switch_to_frame(_driver=_driver, _type=By.ID, _tag='calendar_details')
+    element = _driver.find_elements_by_xpath("//td[contains(.,'Slot gebucht')]")
+    if element != []:
+        return -1, 'Slot full'
+    element = _driver.find_elements_by_xpath("//td[contains(.,'Gestartet')]")
+    if element != []:
+        return -1, 'Slot already started'
+    element = _driver.find_elements_by_xpath("//div/table/tbody/tr/td/div")
+    if element != []:
+        return -1, 'Slot has already booked member'
+    return 0, ''
 
 def click_button(_driver, _type, _tag):
     # Get button by class name and click
