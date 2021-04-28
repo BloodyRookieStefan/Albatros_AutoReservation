@@ -1,14 +1,14 @@
 import os
 import time
-import lib.framework
 from .browser_actions import *
+from .timeslot import timeslot
 from enum import Enum
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
 class BrowserType(Enum):
-    Chrome = 0,
+    Chrome = 0
 
 class CBrowser():
 
@@ -73,27 +73,31 @@ class CBrowser():
         else:
             return True
 
-    def set_date(self, _id):
-        print('Set date: {}'.format(self.Settings.Document['round'][_id]['date']))
+    def set_date(self):
+        print('Set date: {}'.format(self.Settings.Document['date']))
         switch_to_frame(_driver=self.Driver, _type=By.ID, _tag='dynamic')
         # Set Date
-        set_textbox(_driver=self.Driver, _type=By.ID, _tag='date', _sendKeys=self.Settings.Document['round'][_id]['date'], _keyPress=Keys.ENTER, _options='control+a')
+        set_textbox(_driver=self.Driver, _type=By.ID, _tag='date', _sendKeys=self.Settings.Document['date'], _keyPress=Keys.ENTER, _options='control+a')
 
-    def set_course(self, _id):
-        print('Set course: {}'.format(self.Settings.Document['round'][_id]['course']))
+    def set_course(self, _course):
+        print('Set course: {}'.format(_course))
         # Set course
-        set_dropdown(_driver=self.Driver, _tag='ro_id', _target=self.Settings.Document['round'][_id]['course'].lower())
+        set_dropdown(_driver=self.Driver, _tag='ro_id', _target=_course.lower())
 
-    def check_timeslot(self, _id):
-        # Check if slot is full
-        val, msg = check_timeslot(_driver=self.Driver, _timeslot=self.Settings.Document['round'][_id]['timeslot_converted'])
+    def parse_timeslots(self, _course):
+        timeslots = dict()
 
-        if val < 0:
-            print('Check times failed: {} {} : {}'.format(self.Settings.Document['round'][_id]['date'], self.Settings.Document['round'][_id]['timeslot_converted'].strftime("%H:%M:%S"), msg))
-            return False
-        else:
-            print('Timeslot available: {} {}'.format(self.Settings.Document['round'][_id]['date'], self.Settings.Document['round'][_id]['timeslot_converted'].strftime("%H:%M:%S")))
-            return True
+        elements = get_allLinks(_driver=self.Driver)
+        for element in elements:
+            btn_class = element.get_attribute('class')
+
+            if btn_class != 'c-basic-txt':
+                continue    # Link is not timeslot link
+
+            btn_text = element.get_attribute('text')
+            timeslots[btn_text] = timeslot(_class=btn_class, _timeVal=[btn_text, self.Settings.Document['date_converted']], _linkElement=element, _course=_course)
+
+        return timeslots
 
     def reservation(self, _id):
         print('Booking time found. Start reservation: {}'.format(self.Settings.Document['round'][_id]['timeslot_converted'].strftime("%H:%M:%S")))

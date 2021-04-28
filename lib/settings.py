@@ -2,6 +2,15 @@ import yaml
 import os
 import datetime
 
+from enum import Enum
+
+class CourseType(Enum):
+    Invalid = 0
+    Blue = 1
+    Red = 2
+    Yellow = 3
+    Any = 4
+
 class CSettings:
 
     FilePath = ''
@@ -32,13 +41,30 @@ class CSettings:
         self.Document['executiontime_converted'] = datetime.datetime(year, month, day, hour, minute, second)
 
         # Convert timeslot times
-        for round in self.Document['round']:
-            day = int(round['date'].split('.')[0])
-            month = int(round['date'].split('.')[1])
-            year = int(round['date'].split('.')[2])
+        day = int(self.Document['date'].split('.')[0])
+        month = int(self.Document['date'].split('.')[1])
+        year = int(self.Document['date'].split('.')[2])
 
-            hour = int(round['timeslot_h'])
-            minute = int(round['timeslot_m'])
-            round['timeslot_converted'] = datetime.datetime(year, month, day, hour, minute, 0)
+        self.Document['date_converted'] = datetime.datetime(year, month, day, 0, 0, 0)
+
+        for r in self.Document['round']:
+            hour = int(r['start_timeslot_h'])
+            minute = int(r['start_timeslot_m'])
+            r['timeslot_timespan_start'] = datetime.datetime(year, month, day, hour, minute, 0)
+
+            hour = int(r['end_timeslot_h'])
+            minute = int(r['end_timeslot_m'])
+            r['timeslot_timespan_end'] = datetime.datetime(year, month, day, hour, minute, 0)
+
+            if r['course'].lower() == 'blue':
+                r['course_enum'] = CourseType.Blue
+            elif r['course'].lower() == 'red':
+                r['course_enum'] = CourseType.Red
+            elif r['course'].lower() == 'yellow':
+                r['course_enum'] = CourseType.Yellow
+            elif r['course'].lower() == 'any':
+                r['course_enum'] = CourseType.Any
+            else:
+                r['course_enum'] = CourseType.Invalid
 
 settings = CSettings()

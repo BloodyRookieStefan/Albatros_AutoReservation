@@ -1,5 +1,3 @@
-import lib.framework
-import re
 from .settings import settings
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -43,14 +41,14 @@ def set_dropdown(_driver, _tag, _target):
     element.send_keys(Keys.UP)
     element.send_keys(Keys.UP)
 
-    if _target == 'gelb':
+    if _target == 'yellow':
         # Press key down
         element.send_keys(Keys.DOWN)
-    elif _target == 'rot':
+    elif _target == 'red':
         # Press key down
         element.send_keys(Keys.DOWN)
         element.send_keys(Keys.DOWN)
-    elif _target == 'blau':
+    elif _target == 'blue':
         # Press key down
         element.send_keys(Keys.DOWN)
         element.send_keys(Keys.DOWN)
@@ -74,19 +72,8 @@ def get_timeslotByXPath(_driver, _timeslot):
             return element
     return None
 
-def check_timeslot(_driver, _timeslot):
-    select_timeslot(_driver=_driver, _timeslot=_timeslot)
-    switch_to_frame(_driver=_driver, _type=By.ID, _tag='calendar_details')
-    element = _driver.find_elements_by_xpath("//td[contains(.,'Slot gebucht')]")
-    if element != []:
-        return -1, 'Slot full'
-    element = _driver.find_elements_by_xpath("//td[contains(.,'Gestartet')]")
-    if element != []:
-        return -1, 'Slot already started'
-    element = _driver.find_elements_by_xpath("//div/table/tbody/tr/td/div")
-    if element != []:
-        return -1, 'Slot has already booked member'
-    return 0, ''
+def get_allLinks(_driver):
+    return _driver.find_elements_by_xpath("//a[@href]")
 
 def click_button(_driver, _type, _tag):
     # Get button by class name and click

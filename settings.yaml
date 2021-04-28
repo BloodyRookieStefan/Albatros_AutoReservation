@@ -1,26 +1,11 @@
 username      :
-password      : 
+password      :
 round         :
-  - date      : 10.04.2021
-    course    : blau
-    timeslot_h: 19
-    timeslot_m: 52
-    partner0  :
-      - firstName : Simon
-        lastName  : Geigenberger
-    partner1  :
-      - firstName : None
-        lastName  : None
-    partner2:
-      - firstName : None
-        lastName  : None
-    partner3  :
-      - firstName : None
-        lastName  : None
-  - date      : 10.04.2021
-    course    : rot
-    timeslot_h: 19
-    timeslot_m: 52
+  - course    : Any
+    start_timeslot_h  : 15
+    start_timeslot_m  : 00
+    end_timeslot_h    : 17
+    end_timeslot_m    : 00
     partner0  :
       - firstName : None
         lastName  : None
@@ -33,6 +18,24 @@ round         :
     partner3  :
       - firstName : None
         lastName  : None
+  - course    : Any
+    start_timeslot_h  : 15
+    start_timeslot_m  : 00
+    end_timeslot_h    : 17
+    end_timeslot_m    : 00
+    partner0  :
+      - firstName : None
+        lastName  : None
+    partner1  :
+      - firstName : None
+        lastName  : None
+    partner2:
+      - firstName : None
+        lastName  : None
+    partner3  :
+      - firstName : None
+        lastName  : None
+date          : 30.04.2021
 executedate   : 10.04.2021
 executetime_h : 15
 executetime_m : 17
