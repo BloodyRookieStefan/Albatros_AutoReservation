@@ -1,6 +1,7 @@
 import lib
 import time
 import random
+import itertools
 
 from datetime import datetime
 from lib.settings import CourseType
@@ -20,9 +21,9 @@ class ExecutionController:
 
     def run(self):
 
-        # Pre check if any valid course is set
+        # Pre check if valid course is set
         if lib.settings.Document['round'][0]['course_enum'] == CourseType.Invalid and lib.settings.Document['round'][1]['course_enum'] == CourseType.Invalid:
-            raise Exception('No valid course selected')
+            raise Exception('Both course types are invalid. No valid course selected')
 
         # Get execution time start
         self.ExecutionTime_Start = time.time()
@@ -30,35 +31,51 @@ class ExecutionController:
         self.wait_until_time_is_reached()
 
         # Start browser
-        self.start_browser()
-
-        # Create list with all courses
-        randList = [CourseType.Blue.value, CourseType.Red.value, CourseType.Yellow.value]
-        # Remove fix selected onces
-        for i in range(0,2):
-            if lib.settings.Document['round'][i]['course_enum'].value in randList:
-                print('Course {0} is set fix. Remove from random list'.format(lib.settings.Document['round'][i]['course_enum'].name))
-                randList.remove(lib.settings.Document['round'][i]['course_enum'].value)
+        #self.start_browser()
 
         print('')
         print('Init done...')
         print('')
 
-        # Round 1
-        round1TimeslotSelected, round1, randList = self.try_get_timeslot_round(_id=0, _randomCourseList= randList)
+        courseCombinations = self.get_all_possible_combinations()
+        round1Set = False
+        round2Set = False
+        for combi in courseCombinations:
+            # Check if all found
+            if round1Set and round2Set:
+                print('Combination valid')
+                break
 
-        # Round 2
-        round2TimeslotSelected, round2, randList = self.try_get_timeslot_round(_id=1, _randomCourseList= randList)
+            print('Check combination Round 1: {0}, Round 2: {1}'.format(combi[0].name, combi[1].name))
 
-        # Check if we could find all
-        if not round1TimeslotSelected or not round2TimeslotSelected:
-            print('Failed to book. No free slots found')
+            # Round 1
+            if combi[0] != CourseType.Invalid:
+                round1 = self.get_course_timeslot(_course=combi[0], _timeSlotStart=lib.settings.Document['round'][0]['timeslot_timespan_start'], _timeSlotEnd=lib.settings.Document['round'][0]['timeslot_timespan_end'])
+                if round1 is not None:
+                    round1Set = True
+            else:
+                round1Set = True
+
+            # Round 2
+            if combi[1] != CourseType.Invalid:
+                round2 = self.get_course_timeslot(_course=combi[1], _timeSlotStart=lib.settings.Document['round'][1]['timeslot_timespan_start'], _timeSlotEnd=lib.settings.Document['round'][1]['timeslot_timespan_end'])
+                if round2 is not None:
+                    round2Set = True
+            else:
+                round2Set = True
+
+        if not round1Set or not round2Set:
+            print('FAILED: Could not find valid time slot')
             return
 
-        print(round1.Str_text)
-        print(round1.Course.name)
-        print(round2.Str_text)
-        print(round2.Course.name)
+        if round1 is not None:
+            print('Round 1 selected => Timeslot: {0}, Course: {1}, IsFree: {2} '.format(round1.Slot.strftime('%d.%m.%Y - %H:%M'), round1.Course.name, round1.IsFree))
+        else:
+            print('Round 1 => None')
+        if round2 is not None:
+            print('Round 2 selected => Timeslot: {0}, Course: {1}, IsFree: {2} '.format(round2.Slot.strftime('%d.%m.%Y - %H:%M'), round2.Course.name, round2.IsFree))
+        else:
+            print('Round 2 => None')
 
     def wait_until_time_is_reached(self):
         print('Wait for execution date and time...')
@@ -78,51 +95,71 @@ class ExecutionController:
         print('Close browser...')
         self.Browser.dispose()
 
-    def try_get_timeslot_round(self, _id, _randomCourseList):
-        round = None
-        roundTimeslotSelected = False
-        randomCourseList = _randomCourseList.copy()
-        localCourseList = _randomCourseList.copy()
-        if lib.settings.Document['round'][_id]['course_enum'] != CourseType.Invalid:
-            if lib.settings.Document['round'][_id]['course_enum'] == CourseType.Any:
-                done = False
-                while not done:
-                    # Get random course
-                    randIndex = random.randint(0, len(localCourseList) - 1)
-                    randCourse = localCourseList[randIndex]
-                    localCourseList.remove(randCourse)
+    def  get_all_possible_combinations(self):
 
-                    print('Random course selected {0}. Try get timeslot...'.format(CourseType(randCourse).name))
+        combinations = list()
+        combinations_sorted = list()
+        round1List = list()
+        round2List = list()
 
-                    # Try get timeslot in this round
-                    round = self.get_course_timeslot(_course=CourseType(randCourse), _timeSlotStart=lib.settings.Document['round'][_id]['timeslot_timespan_start'], _timeSlotEnd=lib.settings.Document['round'][_id]['timeslot_timespan_end'])
-                    # Did we found something?
-                    if round is not None:
-                        randomCourseList.remove(randCourse)
-                        roundTimeslotSelected = True
-                        done = True
-                        print('Random course available')
-                        break
-                    else:
-                        # We found nothing remove current course from local list and try again
-                        print('Random course NOT available')
-                        if len(localCourseList) == 0:
-                            done = True
-                            print('No more random courses available... Booking failed')
-                            break
+        if lib.settings.Document['round'][0]['course_enum'] != CourseType.Invalid:
+            if lib.settings.Document['round'][0]['course_enum'] == CourseType.Any:
+                round1List = [CourseType.Blue.value, CourseType.Red.value, CourseType.Yellow.value]
             else:
-                print('Fix course selected {0}. Try get timeslot...'.format(lib.settings.Document['round'][_id]['course_enum'].name))
-                round = self.get_course_timeslot(_course=lib.settings.Document['round'][_id]['course_enum'], _timeSlotStart=lib.settings.Document['round'][_id]['timeslot_timespan_start'], _timeSlotEnd=lib.settings.Document['round'][_id]['timeslot_timespan_end'])
-                if round is not None:
-                    print('Fix course available')
-                    roundTimeslotSelected = True
-                else:
-                    print('Fix course NOT available... Booking failed')
+                round1List = [lib.settings.Document['round'][0]['course_enum'].value]
         else:
-            print('No course selected for index {0}'.format(_id))
-            roundTimeslotSelected = True
+            if lib.settings.Document['round'][1]['course_enum'] == CourseType.Any:
+                combinations_sorted.append((CourseType.Invalid, CourseType.Blue))
+                combinations_sorted.append((CourseType.Invalid, CourseType.Red))
+                combinations_sorted.append((CourseType.Invalid, CourseType.Yellow))
+            else:
+                combinations_sorted.append((CourseType.Invalid, lib.settings.Document['round'][1]['course_enum']))
+            random.shuffle(combinations_sorted)
+            return combinations_sorted
 
-        return roundTimeslotSelected, round, randomCourseList
+        if lib.settings.Document['round'][1]['course_enum'] != CourseType.Invalid:
+            if lib.settings.Document['round'][1]['course_enum'] == CourseType.Any:
+                round2List = [CourseType.Blue.value, CourseType.Red.value, CourseType.Yellow.value]
+            else:
+                round2List = [lib.settings.Document['round'][1]['course_enum'].value]
+        else:
+            if lib.settings.Document['round'][0]['course_enum'] == CourseType.Any:
+                combinations_sorted.append((CourseType.Blue, CourseType.Invalid))
+                combinations_sorted.append((CourseType.Red, CourseType.Invalid))
+                combinations_sorted.append((CourseType.Yellow, CourseType.Invalid))
+            else:
+                combinations_sorted.append((lib.settings.Document['round'][0]['course_enum'], CourseType.Invalid))
+            random.shuffle(combinations_sorted)
+            return combinations_sorted
+
+        # Build all combinations with itertools
+        # Depending on list length get permutations
+        if len(round1List) >= len(round2List):
+            permutations = itertools.permutations(round1List, len(round2List))
+            zipObject = round2List
+        else:
+            permutations = itertools.permutations(round2List, len(round1List))
+            zipObject = round1List
+        for permutation in permutations:
+            zipped = zip(permutation, zipObject)
+            combinations.append(list(zipped))
+
+        # Build sorted list => Not interested in:
+        # Same tuples (1,1) or (2,2) or (3,3)
+        # Already known combinations [(3,1), (3,2), (2,1)] and [(3,1), (2,3), (1,2)] => e.g (3,1)
+        for combination in combinations:
+            for tuple in combination:
+                if len(tuple) > 1 and tuple[0] != tuple[1]:
+                    # Based on list length create tuple that round1 is always index 0
+                    if len(round1List) >= len(round2List):
+                        courseTuple = (CourseType(tuple[0]), CourseType(tuple[1]))
+                    else:
+                        courseTuple = (CourseType(tuple[1]), CourseType(tuple[0]))
+                    if courseTuple not in combinations_sorted:
+                        combinations_sorted.append(courseTuple)
+
+        random.shuffle(combinations_sorted)
+        return combinations_sorted
 
     def get_course_timeslot(self, _course, _timeSlotStart, _timeSlotEnd):
 
@@ -153,37 +190,6 @@ class ExecutionController:
 
         return None
 
-main = ExecutionController()
-main.run()
-
-
-'''
-print('Start browser...')
-browser_blue = lib.CBrowser(lib.BrowserType.Chrome, lib.settings)
-browser_blue.login()
-
-browser_red = lib.CBrowser(lib.BrowserType.Chrome, lib.settings)
-browser_red.login()
-
-browser_yellow = lib.CBrowser(lib.BrowserType.Chrome, lib.settings)
-browser_yellow.login()
-
-# Go to booking times and set date & course
-browser_blue.booktimes()
-browser_blue.set_date(_id=i)
-browser_blue.set_course(_id=i)
-# Parse all times
-browser_blue.parse_timeslots()
-
-# Do reservation if found
-#browser.reservation(_id=i)
-#browser.partner_reservation(_id=i)
-#browser.send_reservation()
-#browser.move_default()
-
-#browser.logout()
-#browser.dispose()
-
-timeend = time.time()
-print('Execution time', timeend - timestart)
-'''
+if __name__ == "__main__":
+    main = ExecutionController()
+    main.run()
