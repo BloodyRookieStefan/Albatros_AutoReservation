@@ -1,3 +1,11 @@
+'''
+#############################################################################################
+@brief Contains parsed settings.yaml
+@param self.FilePath - Path to *.yaml file
+@param self.Document - Read document
+#############################################################################################
+'''
+
 import yaml
 import os
 import datetime

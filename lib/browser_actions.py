@@ -1,3 +1,10 @@
+'''
+#############################################################################################
+@brief Browser actions to control website
+@param None
+#############################################################################################
+'''
+
 from .settings import settings
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys

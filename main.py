@@ -1,3 +1,14 @@
+'''
+#############################################################################################
+@brief Main file
+@param self.ExecutionTime_Start - datetime when execution is started
+@param self.Browser - Browser object
+@param self.Timeslots_blue - Parsed timeslots course blue
+@param self.Timeslots_red - Parsed timeslots course red
+@param self.Timeslots_yellow - Parsed timeslots course yellow
+#############################################################################################
+'''
+
 import lib
 import time
 import random

@@ -1,3 +1,17 @@
+'''
+#############################################################################################
+@brief Parsed timeslot object
+@param self.Str_text - times as text (Button text)
+@param self.Str_class - Button class
+@param self.Str_href - Button link
+@param self.Str_id - Generated ID -> When slot is booked this auto generated ID will appear on button HTML object
+@param self.Course - Course ENUM
+@param self.Slot - Timeslot in datetime format
+@param self.LinkElement - Selenium button object
+@param self.IsFree - Timeslot is free true/false
+#############################################################################################
+'''
+
 import datetime
 
 class timeslot:

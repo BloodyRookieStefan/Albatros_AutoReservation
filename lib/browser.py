@@ -1,3 +1,11 @@
+'''
+#############################################################################################
+@brief Browser object to control browser
+@param self.Driver - Selenium browser object
+@param self.Settings - Parsed *.yaml setting file
+#############################################################################################
+'''
+
 import os
 import time
 from .browser_actions import *
@@ -100,14 +108,13 @@ class CBrowser():
         # Sort availible timeslots early -> old
         done = False
         tups = list(timeslots.items())
-        debug = list(timeslots.items())
         while not done:
             indexChanged = False
             for i in range(0, len(tups)):
                 if i+1 < len(tups):
-                    hasLowerIndex = tups[i][1].Slot.hour * 100 + tups[i][1].Slot.minute
-                    hasUpperIndex = tups[i+1][1].Slot.hour * 100 + tups[i+1][1].Slot.minute
-                    if hasUpperIndex < hasLowerIndex:
+                    hashLowerIndex = tups[i][1].Slot.hour * 100 + tups[i][1].Slot.minute
+                    hashUpperIndex = tups[i+1][1].Slot.hour * 100 + tups[i+1][1].Slot.minute
+                    if hashUpperIndex < hashLowerIndex:
                         tups[i], tups[i+1] = tups[i+1], tups[i]
                         indexChanged = True
 
