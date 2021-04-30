@@ -49,7 +49,6 @@ class CBrowser():
             raise ValueError('Unknown browser')
 
     def dispose(self):
-        self.Driver.close()
         self.Driver = None
 
     def login(self):
@@ -72,14 +71,6 @@ class CBrowser():
     def booktimes(self):
         # Press Startzeiten
         click_button(_driver=self.Driver, _type=By.ID, _tag='pr_res_calendar')
-
-    def res_timeslots_available(self, _id):
-        switch_to_frame(_driver=self.Driver, _type=By.ID, _tag='dynamic')
-        element = get_timeslotByXPath(_driver=self.Driver, _timeslot=self.Settings.Document['round'][_id]['timeslot_converted'])
-        if element is None:
-            return False
-        else:
-            return True
 
     def set_date(self):
         print('Set date: {}'.format(self.Settings.Document['date']))
@@ -124,16 +115,18 @@ class CBrowser():
 
         return dict(tups)
 
-    def reservation(self, _id):
-        print('Booking time found. Start reservation: {}'.format(self.Settings.Document['round'][_id]['timeslot_converted'].strftime("%H:%M:%S")))
+    def reservation(self, _timeslot):
+        # Set course
+        self.set_course(_timeslot.Course.name)
         # Set timeslot
-        select_timeslot(_driver=self.Driver, _timeslot=self.Settings.Document['round'][_id]['timeslot_converted'])
+        select_timeslot(_driver=self.Driver, _timeslotStr=_timeslot.Str_text)
         # Switch to iFrame
         switch_to_frame(_driver=self.Driver, _type=By.ID, _tag='calendar_details')
         # Click reservation button
         click_button(_driver=self.Driver, _type=By.ID, _tag='btnMakeRes')
 
     def partner_reservation(self, _id):
+        print('Partner reservation for course {0}'.format(_id+1))
         # Toggle frames??? Without not working?
         switch_toDefaultFrame(_driver=self.Driver)
         switch_to_frame(_driver=self.Driver, _type=By.ID, _tag='dynamic')
@@ -151,6 +144,8 @@ class CBrowser():
                 click_button(_driver=self.Driver, _type=By.ID, _tag='btnSearch')
 
     def send_reservation(self):
+        print('Reservation send')
+        return
         if not self.Settings.Document['developermode']:
             # Make reservation
             print('Reservation send')

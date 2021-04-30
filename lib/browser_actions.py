@@ -64,18 +64,17 @@ def set_dropdown(_driver, _tag, _target):
         raise ValueError('{} is an unknown course'.format(_target))
     element.send_keys(Keys.ENTER)
 
-def select_timeslot(_driver, _timeslot):
-    element = get_timeslotByXPath(_driver, _timeslot)
+def select_timeslot(_driver, _timeslotStr):
+    element = get_timeslotByXPath(_driver, _timeslotStr)
     if element == None:
-        raise ValueError('Could not find timeslot: {}'.format(_timeslot.strftime('%H:%M')))
+        raise ValueError('Could not find timeslot: {}'.format(_timeslotStr.strftime('%H:%M')))
     element.click()
 
-def get_timeslotByXPath(_driver, _timeslot):
+def get_timeslotByXPath(_driver, _timeslotStr):
     elements = _driver.find_elements_by_xpath("//a[@href]")
-    timeslotFormatted = _timeslot.strftime('%H:%M')
 
     for element in elements:
-        if timeslotFormatted == element.text:
+        if _timeslotStr == element.text:
             return element
     return None
 

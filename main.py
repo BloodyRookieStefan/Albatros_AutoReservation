@@ -50,7 +50,9 @@ class ExecutionController:
 
         courseCombinations = self.get_all_possible_combinations()
         round1Set = False
+        round1 = None
         round2Set = False
+        round2 = None
         for combi in courseCombinations:
             # Check if all found
             if round1Set and round2Set:
@@ -117,6 +119,28 @@ class ExecutionController:
             print('Round 2 selected => Timeslot: {0}, Course: {1}, IsFree: {2} '.format(round2.Slot.strftime('%d.%m.%Y - %H:%M'), round2.Course.name, round2.IsFree))
         else:
             print('Round 2 => None')
+
+        if round1 is not None:
+            self.Browser.reservation(_timeslot=round1)
+            self.Browser.partner_reservation(_id=0)
+            self.Browser.send_reservation()
+
+            self.Browser.move_default()
+            self.Browser.booktimes()
+            self.Browser.set_date()
+
+        if round2 is not None:
+            self.Browser.reservation(_timeslot=round2)
+            self.Browser.partner_reservation(_id=1)
+            self.Browser.send_reservation()
+
+            self.Browser.move_default()
+            self.Browser.booktimes()
+            self.Browser.set_date()
+
+        print('Done... Close program')
+        self.Browser.logout()
+        self.Browser.dispose()()
 
     def wait_until_time_is_reached(self):
         print('Wait for execution date and time...')
