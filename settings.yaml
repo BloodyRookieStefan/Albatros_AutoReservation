@@ -1,11 +1,11 @@
 username      :
 password      :
+roundMINdelay   : 02-00
+roundMAXdelay   : 02-30
 round         :
-  - course    : Any
-    start_timeslot_h  : 15
-    start_timeslot_m  : 00
-    end_timeslot_h    : 17
-    end_timeslot_m    : 00
+  - course    : Red
+    start_timeslot: 11-00
+    end_timeslot  : 12-00
     partner0  :
       - firstName : None
         lastName  : None
@@ -18,11 +18,9 @@ round         :
     partner3  :
       - firstName : None
         lastName  : None
-  - course    : Any
-    start_timeslot_h  : 15
-    start_timeslot_m  : 00
-    end_timeslot_h    : 17
-    end_timeslot_m    : 00
+  - course    : Blue
+    start_timeslot: 11-00
+    end_timeslot  : 11-00
     partner0  :
       - firstName : None
         lastName  : None
@@ -35,11 +33,9 @@ round         :
     partner3  :
       - firstName : None
         lastName  : None
-date          : 30.04.2021
-executedate   : 10.04.2021
-executetime_h : 15
-executetime_m : 17
-executetime_s : 00
-workspace     : Windows
-weburl        : https://albatros.gc-sl.de/albport/
-developermode : True
+date            : 02.05.2021
+executedate     : 10.04.2021
+executetime     : 15-17-00
+workspace       : Windows
+weburl          : https://albatros.gc-sl.de/albport/
+developermode   : True

@@ -31,7 +31,7 @@ class ExecutionController:
         self.wait_until_time_is_reached()
 
         # Start browser
-        #self.start_browser()
+        self.start_browser()
 
         print('')
         print('Init done...')
@@ -51,6 +51,7 @@ class ExecutionController:
             # Round 1
             if combi[0] != CourseType.Invalid:
                 round1 = self.get_course_timeslot(_course=combi[0], _timeSlotStart=lib.settings.Document['round'][0]['timeslot_timespan_start'], _timeSlotEnd=lib.settings.Document['round'][0]['timeslot_timespan_end'])
+
                 if round1 is not None:
                     round1Set = True
             else:
@@ -58,7 +59,36 @@ class ExecutionController:
 
             # Round 2
             if combi[1] != CourseType.Invalid:
-                round2 = self.get_course_timeslot(_course=combi[1], _timeSlotStart=lib.settings.Document['round'][1]['timeslot_timespan_start'], _timeSlotEnd=lib.settings.Document['round'][1]['timeslot_timespan_end'])
+                if (lib.settings.Document['roundMINdelay_converted'].hour > 0 or lib.settings.Document['roundMINdelay_converted'].minute > 0 or \
+                    lib.settings.Document['roundMAXdelay_converted'].hour > 0 or lib.settings.Document['roundMAXdelay_converted'].minute > 0) and \
+                    round1 is not None:
+
+                    timeslotStart = round1.Slot
+                    timeslotEnd = round1.Slot
+
+                    hour = timeslotStart.hour + lib.settings.Document['roundMINdelay_converted'].hour
+                    minute = timeslotStart.minute + lib.settings.Document['roundMINdelay_converted'].minute
+                    if minute > 59:
+                        hour = hour + 1
+                        minute = minute - 59
+                    timeslotStart = datetime(timeslotStart.year, timeslotStart.month, timeslotStart.day, hour, minute, 0)
+
+                    hour = timeslotEnd.hour + lib.settings.Document['roundMAXdelay_converted'].hour
+                    minute = timeslotEnd.minute + lib.settings.Document['roundMAXdelay_converted'].minute
+                    if minute > 59:
+                        hour = hour + 1
+                        minute = minute - 59
+                    timeslotEnd = datetime(timeslotEnd.year, timeslotEnd.month, timeslotEnd.day, hour, minute, 0)
+
+                    print('Delay option for course 2 - Delay time MIN {0} - Delay time MAX {1}'.format(timeslotStart.strftime('%H:%M'), timeslotEnd.strftime('%H:%M')))
+                else:
+                    timeslotStart = lib.settings.Document['round'][1]['timeslot_timespan_start']
+                    timeslotEnd = lib.settings.Document['round'][1]['timeslot_timespan_end']
+
+                    print('Choose normal start time for course 2')
+
+                round2 = self.get_course_timeslot(_course=combi[1], _timeSlotStart=timeslotStart, _timeSlotEnd=timeslotEnd)
+
                 if round2 is not None:
                     round2Set = True
             else:
@@ -114,6 +144,7 @@ class ExecutionController:
                 combinations_sorted.append((CourseType.Invalid, CourseType.Yellow))
             else:
                 combinations_sorted.append((CourseType.Invalid, lib.settings.Document['round'][1]['course_enum']))
+            # Shuffle list
             random.shuffle(combinations_sorted)
             return combinations_sorted
 
@@ -129,6 +160,7 @@ class ExecutionController:
                 combinations_sorted.append((CourseType.Yellow, CourseType.Invalid))
             else:
                 combinations_sorted.append((lib.settings.Document['round'][0]['course_enum'], CourseType.Invalid))
+            # Shuffle list
             random.shuffle(combinations_sorted)
             return combinations_sorted
 
@@ -158,6 +190,7 @@ class ExecutionController:
                     if courseTuple not in combinations_sorted:
                         combinations_sorted.append(courseTuple)
 
+        # Shuffle list
         random.shuffle(combinations_sorted)
         return combinations_sorted
 

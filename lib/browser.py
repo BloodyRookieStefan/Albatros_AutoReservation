@@ -97,7 +97,25 @@ class CBrowser():
             btn_text = element.get_attribute('text')
             timeslots[btn_text] = timeslot(_class=btn_class, _timeVal=[btn_text, self.Settings.Document['date_converted']], _linkElement=element, _course=_course)
 
-        return timeslots
+        # Sort availible timeslots early -> old
+        done = False
+        tups = list(timeslots.items())
+        debug = list(timeslots.items())
+        while not done:
+            indexChanged = False
+            for i in range(0, len(tups)):
+                if i+1 < len(tups):
+                    hasLowerIndex = tups[i][1].Slot.hour * 100 + tups[i][1].Slot.minute
+                    hasUpperIndex = tups[i+1][1].Slot.hour * 100 + tups[i+1][1].Slot.minute
+                    if hasUpperIndex < hasLowerIndex:
+                        tups[i], tups[i+1] = tups[i+1], tups[i]
+                        indexChanged = True
+
+            # We ran trough all without switching index -> Done
+            if not indexChanged:
+                done = True;
+
+        return dict(tups)
 
     def reservation(self, _id):
         print('Booking time found. Start reservation: {}'.format(self.Settings.Document['round'][_id]['timeslot_converted'].strftime("%H:%M:%S")))
