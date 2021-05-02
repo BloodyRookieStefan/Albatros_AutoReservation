@@ -8,6 +8,7 @@
 
 import os
 import time
+import re
 from .browser_actions import *
 from .timeslot import timeslot
 from enum import Enum
@@ -86,15 +87,27 @@ class CBrowser():
     def parse_timeslots(self, _course):
         timeslots = dict()
 
-        elements = get_allLinks(_driver=self.Driver)
-        for element in elements:
-            btn_class = element.get_attribute('class')
+        table = get_timeslotTable(_driver=self.Driver)
+        if len(table) == 0:
+            raise Exception('Could not parse timetable')
 
-            if btn_class != 'c-basic-txt':
-                continue    # Link is not timeslot link
-
-            btn_text = element.get_attribute('text')
-            timeslots[btn_text] = timeslot(_class=btn_class, _timeVal=[btn_text, self.Settings.Document['date_converted']], _linkElement=element, _course=_course)
+        tableSplit = table[0].text.split('\n')
+        index = 0
+        for tSlot in tableSplit:
+            btn_text = tSlot.strip()
+            if re.search("^[0-9]{1,2}:[0-9]{1,2}$", btn_text):
+                if index + 1 < len(tableSplit):
+                    btn_text_NEXT = tableSplit[index + 1].strip()
+                    if re.search("^[0-9]{1,2}:[0-9]{1,2}$", btn_text_NEXT):
+                        # Free
+                        timeslots[btn_text] = timeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _course=_course, _isFree=True)
+                    else:
+                        # Not free
+                        timeslots[btn_text] = timeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _course=_course, _isFree=False)
+                else:
+                    #  Last element free
+                    timeslots[btn_text] = timeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _course=_course, _isFree=True)
+            index += 1
 
         # Sort availible timeslots early -> old
         done = False

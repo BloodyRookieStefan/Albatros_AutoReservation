@@ -81,6 +81,9 @@ def get_timeslotByXPath(_driver, _timeslotStr):
 def get_allLinks(_driver):
     return _driver.find_elements_by_xpath("//a[@href]")
 
+def get_timeslotTable(_driver):
+    return _driver.find_elements_by_xpath("//*[@id='gridarea']/table/tbody")
+
 def click_button(_driver, _type, _tag):
     # Get button by class name and click
     _driver.find_element(_type, _tag).click()

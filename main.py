@@ -21,6 +21,7 @@ from lib.settings import CourseType
 class ExecutionController:
 
     ExecutionTime_Start = None
+    ExecutionTime_Stop = None
     Browser = None
 
     Timeslots_blue = dict()
@@ -36,10 +37,11 @@ class ExecutionController:
         if lib.settings.Document['round'][0]['course_enum'] == CourseType.Invalid and lib.settings.Document['round'][1]['course_enum'] == CourseType.Invalid:
             raise Exception('Both course types are invalid. No valid course selected')
 
-        # Get execution time start
-        self.ExecutionTime_Start = time.time()
         # Wait until execution time is reached
         self.wait_until_time_is_reached()
+
+        # Get execution time start
+        self.ExecutionTime_Start = time.time()
 
         # Start browser
         self.start_browser()
@@ -134,13 +136,13 @@ class ExecutionController:
             self.Browser.partner_reservation(_id=1)
             self.Browser.send_reservation()
 
-            self.Browser.move_default()
-            self.Browser.booktimes()
-            self.Browser.set_date()
+        # Get execution time start
+        self.ExecutionTime_Stop = time.time()
+        print('Execution time:', self.ExecutionTime_Stop - self.ExecutionTime_Start)
 
         print('Done... Close program')
         self.Browser.logout()
-        self.Browser.dispose()()
+        self.Browser.dispose()
 
     def wait_until_time_is_reached(self):
         print('Wait for execution date and time...')
