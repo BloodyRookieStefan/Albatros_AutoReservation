@@ -10,14 +10,7 @@ import yaml
 import os
 import datetime
 
-from enum import Enum
-
-class CourseType(Enum):
-    Invalid = 0
-    Blue = 1
-    Red = 2
-    Yellow = 3
-    Any = 4
+from .progEnums import CourseType
 
 class CSettings:
 
