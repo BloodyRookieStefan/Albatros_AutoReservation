@@ -1,6 +1,6 @@
 import re
+import datetime
 
-from enum import Enum
 from .progEnums import *
 from .basic_actions import CBasicActions
 from selenium import webdriver
@@ -68,13 +68,13 @@ class CCourseBooking(CBasicActions):
                     btn_text_NEXT = tableSplit[index + 1].strip()
                     if re.search("^[0-9]{1,2}:[0-9]{1,2}$", btn_text_NEXT):
                         # Free
-                        timeslots[btn_text] = timeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _course=_course, _isFree=True)
+                        timeslots[btn_text] = CTimeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _course=_course, _isFree=True)
                     else:
                         # Not free
-                        timeslots[btn_text] = timeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _course=_course, _isFree=False)
+                        timeslots[btn_text] = CTimeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _course=_course, _isFree=False)
                 else:
                     #  Last element free
-                    timeslots[btn_text] = timeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _course=_course, _isFree=True)
+                    timeslots[btn_text] = CTimeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _course=_course, _isFree=True)
             index += 1
 
         # Sort availible timeslots early -> old
@@ -203,7 +203,7 @@ class CCourseBooking(CBasicActions):
     def get_timeslotTable(self):
         return self.Driver.find_elements_by_xpath("//*[@id='gridarea']/table/tbody")
 
-class timeslot:
+class CTimeslot:
 
     Str_text = None
     Course = None

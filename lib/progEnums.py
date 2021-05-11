@@ -3,9 +3,9 @@ from enum import Enum
 class BrowserType(Enum):
     Chrome = 0
 
-class BrowserMode(Enum):
-    CourseBooking = 0
-    CourseLayout = 1
+class BookingMode(Enum):
+    Nine = 9
+    Eighteen = 18
 
 class CourseType(Enum):
     # Invalid

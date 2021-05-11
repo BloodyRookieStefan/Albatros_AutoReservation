@@ -11,11 +11,11 @@ import os
 from selenium import webdriver
 from .course_booking import CCourseBooking
 from .course_layout import CCourseLayout
+from .weather_forecast import CWheaterForecast
 from.progEnums import BrowserType
 
-class CBrowser(CCourseBooking, CCourseLayout):
+class CBrowser(CCourseBooking, CCourseLayout, CWheaterForecast):
 
-    Mode = None
     Driver = None
     Settings = None
 

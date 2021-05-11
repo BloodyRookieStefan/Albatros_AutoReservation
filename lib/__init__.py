@@ -1,2 +1,2 @@
 from .browser import *
-from .settings import *
+from .settings import settings
