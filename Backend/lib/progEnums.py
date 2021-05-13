@@ -2,6 +2,7 @@ from enum import Enum
 
 class BrowserType(Enum):
     Chrome = 0
+    Firefox = 1
 
 class BookingMode(Enum):
     Nine = 9

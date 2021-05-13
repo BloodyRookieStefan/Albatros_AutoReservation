@@ -30,14 +30,24 @@ class CCourseLayout(CBasicActions):
             elif i == 1:
                 date = entry.text
             elif i == 2:
-                course18 = self.course_name_to_enum(entry.text)
+                # Valid course or is it not set yet on website?
+                if entry.text != '':
+                    course18 = self.course_name_to_enum(entry.text)
+                else:
+                    course18 = None
             elif i == 3:
-                course9 = self.course_name_to_enum(entry.text)
+                # Valid course or is it not set yet on website?
+                if entry.text != '':
+                    course9 = self.course_name_to_enum(entry.text)
+                else:
+                    course9 = None
             elif i == 4:
                 pinPos = entry.text
             elif i == 5:
                 comment = entry.text
-                courseLayout[date] = CLayout(day, date, course18, course9, pinPos, comment)
+                # Only if we could parse the information create entry
+                if course9 is not None and course18 is not None:
+                    courseLayout[date] = CLayout(day, date, course18, course9, pinPos, comment)
                 i = -1
 
             i = i + 1

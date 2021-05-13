@@ -1,3 +1,4 @@
+import time
 import re
 import datetime
 
@@ -9,21 +10,31 @@ from selenium.webdriver.common.by import By
 
 class CCourseBooking(CBasicActions):
 
-    Timeslots_9 = dict()
-    Timeslots_18 = dict()
-
     def __init__(self):
         pass
 
     def start_browser_course_booking(self):
-        self.Mode = BrowserMode.CourseBooking
-
         # Load website
         self.Driver.get(self.Settings.Document['weburl_booking'])
 
         self.login()
         self.booktimes()
         self.set_date()
+
+        # Set course type
+        self.set_course(self.Settings.Document['courseBooking_enum'])
+
+        # Refresh until available
+        available = False
+        while not available:
+            table = self.get_timeslotTable()
+            if table is not None and len(table) > 0:
+                available = True
+            else:
+                time.sleep(1)
+                self.Driver.refresh()
+
+        return self.parse_timeslots()
 
     def login(self):
         print('Website login...')
@@ -50,9 +61,9 @@ class CCourseBooking(CBasicActions):
     def set_course(self, _course):
         print('Set course: {}'.format(_course))
         # Set course
-        self.set_dropdown(_tag='ro_id', _target=_course.lower())
+        self.set_dropdown(_tag='ro_id', _target=_course)
 
-    def parse_timeslots(self, _course):
+    def parse_timeslots(self):
         timeslots = dict()
 
         table = self.get_timeslotTable()
@@ -64,17 +75,17 @@ class CCourseBooking(CBasicActions):
         for tSlot in tableSplit:
             btn_text = tSlot.strip()
             if re.search("^[0-9]{1,2}:[0-9]{1,2}$", btn_text):
-                if index + 1 < len(tableSplit):
-                    btn_text_NEXT = tableSplit[index + 1].strip()
-                    if re.search("^[0-9]{1,2}:[0-9]{1,2}$", btn_text_NEXT):
+                if index - 1 > -1:
+                    btn_text_BEFORE = tableSplit[index - 1].strip()
+                    if re.search("^[0-9]{1,2}:[0-9]{1,2}$", btn_text_BEFORE):
                         # Free
-                        timeslots[btn_text] = CTimeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _course=_course, _isFree=True)
+                        timeslots[btn_text] = CTimeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _isFree=True)
                     else:
                         # Not free
-                        timeslots[btn_text] = CTimeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _course=_course, _isFree=False)
+                        timeslots[btn_text] = CTimeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _isFree=False)
                 else:
-                    #  Last element free
-                    timeslots[btn_text] = CTimeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _course=_course, _isFree=True)
+                    #  First element free and it is free
+                    timeslots[btn_text] = CTimeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _isFree=True)
             index += 1
 
         # Sort availible timeslots early -> old
@@ -98,8 +109,6 @@ class CCourseBooking(CBasicActions):
 
 
     def reservation(self, _timeslot):
-        # Set course
-        self.set_course(_timeslot.Course.name)
         # Set timeslot
         self.select_timeslot(_timeslotStr=_timeslot.Str_text)
         # Switch to iFrame
@@ -109,7 +118,7 @@ class CCourseBooking(CBasicActions):
 
 
     def partner_reservation(self, _id):
-        print('Partner reservation for course {0}'.format(_id + 1))
+        print('Partner reservation')
         # Toggle frames??? Without not working?
         self.switch_toDefaultFrame()
         self.switch_to_frame(_type=By.ID, _tag='dynamic')
@@ -120,12 +129,17 @@ class CCourseBooking(CBasicActions):
             if partner['firstName'] != 'None' and partner['lastName'] != 'None':
                 print('Partner reservation: {} {}'.format(partner['firstName'], partner['lastName']))
                 # Set first name
-                self.set_textbox(_type=By.NAME, _tag='fname', _sendKeys=partner['firstName'])
+                self.set_textbox(_type=By.NAME, _tag='fname', _sendKeys=partner['firstName'], _options=['control+a'])
                 # Set last name
-                self.set_textbox(_type=By.NAME, _tag='lname', _sendKeys=partner['lastName'])
+                self.set_textbox(_type=By.NAME, _tag='lname', _sendKeys=partner['lastName'], _options=['control+a'])
                 # Click search button
                 self.click_button(_type=By.ID, _tag='btnSearch')
-
+                # Get add button and press it. Classification by image
+                hits = self.Driver.find_elements(By.CLASS_NAME, 'abutton')
+                for hit in hits:
+                    if 'img/plus.gif' in hit.get_attribute("src"):
+                        hit.click()
+                        break
 
     def send_reservation(self):
         print('Reservation send')
@@ -170,16 +184,11 @@ class CCourseBooking(CBasicActions):
         element.send_keys(Keys.UP)
         element.send_keys(Keys.UP)
 
-        if _target == 'yellow':
+        if _target == BookingMode.Eighteen:
             # Press key down
             element.send_keys(Keys.DOWN)
-        elif _target == 'red':
+        elif _target == BookingMode.Nine:
             # Press key down
-            element.send_keys(Keys.DOWN)
-            element.send_keys(Keys.DOWN)
-        elif _target == 'blue':
-            # Press key down
-            element.send_keys(Keys.DOWN)
             element.send_keys(Keys.DOWN)
             element.send_keys(Keys.DOWN)
         else:
@@ -210,10 +219,9 @@ class CTimeslot:
     Slot = None
     IsFree = False
 
-    def __init__(self, _timeVal, _course, _isFree):
+    def __init__(self, _timeVal, _isFree):
 
         self.Str_text = _timeVal[0]
-        self.Course = _course
         self.IsFree = _isFree
 
         # Convert timeslot

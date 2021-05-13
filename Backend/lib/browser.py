@@ -39,9 +39,25 @@ class CBrowser(CCourseBooking, CCourseLayout, CWheaterForecast):
                 options.add_argument(option)
 
             self.Driver = webdriver.Chrome(options=options)
-            self.Driver.maximize_window()
+        elif _type == BrowserType.Firefox:
+            options = webdriver.FirefoxOptions()
+            # TODO
+            '''
+            if self.Settings.Document['workspace'].lower() == 'windows':
+                options.add_argument('{0}\chromedriver.exe'.format(directorypath))
+            elif self.Settings.Document['workspace'].lower() == 'Linux':
+                options.add_argument('{0}\chromedriver'.format(directorypath))
+            else:
+                raise Exception('{} is an unkown workspace'.format(self.Settings.Document['workspace']))
+            '''
+            for option in optionsList:
+                options.add_argument(option)
+
+            self.Driver = webdriver.Firefox(options=options)
         else:
             raise Exception('Unknown browser')
+
+        self.Driver.maximize_window()
 
     def dispose(self):
         try:
