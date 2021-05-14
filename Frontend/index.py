@@ -1,3 +1,4 @@
+import os
 import re
 
 from flask import Flask, render_template, request, redirect, url_for
@@ -5,18 +6,32 @@ from template_creator import CTemplateCreator
 from datetime import datetime
 
 app = Flask(__name__)
+tempCreator = CTemplateCreator()
+tempCreator.read_template()
 
 @app.route("/")
 def index():
-    return render_template("index.html", currentdate=datetime.now().strftime('%d.%m.%Y'), currenttime=datetime.now().strftime('%H-00'))
+    bookingInProgess = False
+    if os.path.exists(tempCreator.TargetFile):
+        bookingInProgess = True
+    return render_template("index.html", currentdate=datetime.now().strftime('%d.%m.%Y'),
+                           currenttime=datetime.now().strftime('%H-00'),
+                           username=tempCreator.Document['username'],
+                           bookinginprogess=bookingInProgess)
 
 @app.route("/success")
 def success():
-    return render_template("response.html", errordata=None)
+    return render_template("response.html", errordata=None, cancel=False)
+
+@app.route("/cancel", methods=['POST'])
+def cancel():
+    if os.path.exists(tempCreator.TargetFile):
+        os.remove(tempCreator.TargetFile)
+    return render_template("response.html", errordata=None, cancel=True)
 
 @app.route("/failed/<errordata>")
 def failed(errordata):
-    return render_template("response.html", errordata=errordata)
+    return render_template("response.html", errordata=errordata, cancel=False)
 
 @app.route("/home", methods=['POST'])
 def home():
@@ -55,15 +70,12 @@ def response():
         if not check_input(_type='DIGITONLY', _value=maxWind):
             return redirect(url_for("failed", errordata=format_error_str("MAXIMUM WIND SPEED", "digit only", maxWind)))
 
-    # Load template
-    tempCreator = CTemplateCreator()
-    tempCreator.read_template()
-
     # Replace data
     tempCreator.Document['date'] = date
     tempCreator.Document['courseBooking'] = int(layout)
-    tempCreator.Document['round'][0]['start_timeslot'] = timespanStart
-    tempCreator.Document['round'][0]['end_timeslot'] = timespanEnd
+    round = tempCreator.Document['round'][0]
+    round['start_timeslot'] = timespanStart
+    round['end_timeslot'] = timespanEnd
     if useWeatherData is not None:
         tempCreator.Document['use_nice_weather_golfer'] = 1
         tempCreator.Document['minTemp_deg'] = int(minTemp)
@@ -71,6 +83,12 @@ def response():
         tempCreator.Document['maxWind_km/h'] = int(maxWind)
     else:
         tempCreator.Document['use_nice_weather_golfer'] = 0
+
+    for i in range(0, 4):
+        if partnerList[i][0] != '' and partnerList[i][1] != '':
+            partner = round['partner{}'.format(i)][0]
+            partner['firstName'] = partnerList[i][1]
+            partner['lastName'] = partnerList[i][0]
 
     tempCreator.save_template()
 
@@ -108,5 +126,5 @@ def format_error_str(_item, _expected, _got):
     return "{0} had not the correct format - Expected: \"{1}\" - Got: \"{2}\"".format(_item, _expected, _got)
 
 if __name__ == "__main__":
-    #app.run()
-    app.run("192.168.59.100")
+    app.run()
+    #app.run("192.168.59.100")

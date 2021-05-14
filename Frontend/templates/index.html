@@ -44,7 +44,7 @@
                         <div class="row">
                             <div class="logo">
                                 <img src="static/images/logo.png" alt="logo">
-                                <p>Time till next day acitvation</p>
+                                <p>Time till next day activation</p>
                             </div>
                         </div>
                         <div class="row">
@@ -87,8 +87,17 @@
         </section>
 
         <div class="w3-container w3-green">
-          <h2>New course booking</h2>
+          <h2>New course booking for {{username}}</h2>
         </div>
+        {% if bookinginprogess %}
+        <form class="w3-container w3-cyan" method="POST" action="/cancel">
+        <div class="w3-container w3-cyan">
+          <h5>There is currently a booking in progress...</h5>
+        </div>
+          <button class="w3-button w3-block w3-section w3-red w3-ripple w3-padding">Cancel booking</button>
+        </form>
+        {% endif %}
+
         <form class="w3-container w3-light white" method="POST" action="/response">
         <!-- =========================
                  Course layout
@@ -142,7 +151,7 @@
                     </div>
                 </div>
           {% endfor %}
-            <button class="w3-button w3-block w3-section w3-blue w3-ripple w3-padding">Reservation</button>
+          <button class="w3-button w3-block w3-section w3-blue w3-ripple w3-padding">Reservation</button>
         </form>
 
         <!-- JAVASCRIPTS -->

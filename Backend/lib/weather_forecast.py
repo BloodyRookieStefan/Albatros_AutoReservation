@@ -1,5 +1,6 @@
 import copy
 
+from datetime import datetime
 from .basic_actions import CBasicActions
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -128,7 +129,11 @@ class CCast:
 
     def __init__(self, _date, _day, _temp, _wind, _chanceOfRain):
 
-        self.Date = _date
+        dateSplit = _date.split('.')
+        if len(dateSplit) == 3:
+            self.Date = datetime(int(dateSplit[2]), int(dateSplit[1]), int(dateSplit[0]), 0, 0, 0)
+        else:
+            self.Date = None
         self.Day = _day
 
         # Init dict with timestamps
@@ -136,9 +141,16 @@ class CCast:
         self.Wind = dict()
         self.ChanceOfRain = dict()
         i = 0
-        for time in [0, 3, 6, 9, 12, 15, 18, 21]:
-            self.Temp[time] = _temp[i]
-            self.Wind[time] = _wind[i]
-            self.ChanceOfRain[time] = _chanceOfRain[i]
+        j = 0
+        # TODO: Interpolation?
+        for time in range(0, 24):
+            if i in [0, 3, 6, 9, 12, 15, 18, 21]:
+                valueTemp = _temp[j].split(' ')[0]
+                valueWind = _wind[j].split(' ')[0]
+                valueRain = _chanceOfRain[j].split(' ')[0]
+                j = j + 1
+            self.Temp[time] = valueTemp
+            self.Wind[time] = valueWind
+            self.ChanceOfRain[time] = valueRain
 
             i = i + 1
