@@ -1,0 +1,38 @@
+#---------------------------------------------
+# Albatros login
+username      : None
+password      : None
+#---------------------------------------------
+# Booking
+date            : None
+courseBooking   : None
+round:
+  - start_timeslot: None
+    end_timeslot  : None
+    partner0:
+      - firstName : None
+        lastName  : None
+    partner1:
+      - firstName : None
+        lastName  : None
+    partner2:
+      - firstName : None
+        lastName  : None
+    partner3:
+      - firstName : None
+        lastName  : None
+#---------------------------------------------
+# Weather data
+use_nice_weather_golfer : None
+minTemp_deg             : None
+maxRainChange_perc      : None
+maxWind_km/h            : None
+#---------------------------------------------
+# General settings
+executespan       : 3                           # How many days before we can book in Albatros
+executetime       : 21-00                       # Booking time
+workspace         : Windows
+developermode     : 1
+weburl_booking    : https://albatros.gc-sl.de/albport/index.jsp?language=de&sid=7549441721F84A3CB517BA19E42010D6
+weburl_layout     : https://golfclubliebenstein.de/platzbenutzung
+weburl_weather    : https://www.agrarwetter.net

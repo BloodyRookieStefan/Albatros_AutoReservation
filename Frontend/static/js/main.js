@@ -93,7 +93,6 @@
   //Initializing the app
   //passing the countdown date
   var today = new Date();
-  var day;
   if (today.getHours() > 20)
   {
       today = today.addDay(1)

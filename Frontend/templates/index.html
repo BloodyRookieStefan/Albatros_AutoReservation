@@ -16,6 +16,8 @@
         <link rel="stylesheet" type="text/css" href="static/css/font-awesome.min.css" />
         <link rel="stylesheet" type="text/css" href="static/css/style.css" />
         <link href='http://fonts.googleapis.com/css?family=Roboto:400,500,400italic,500italic,700' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <!--[if IE]>
         	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->
@@ -84,127 +86,65 @@
             </div> <!-- END CONTENT -->
         </section>
 
+        <div class="w3-container w3-green">
+          <h2>New course booking</h2>
+        </div>
+        <form class="w3-container w3-light white" method="POST" action="/response">
         <!-- =========================
-                 NEWSLETTER
+                 Course layout
         ========================== -->
-
-        <section class="newsletter">
-            <div class="container">
-                <div class="row text-center">
-                    <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
-                        <div class="main_content">
-                            <h4><strong>Indus is under construction!</strong></h4>
-                            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,</p>
-                            <div id="" class="confirm-message"></div>
-                            <form id="" name="">
-                                <div class="input-group">
-                                    <input class="form-control news-input" type="text" name="subscribe_email" id="subscribe_email" placeholder="Email" />
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-custom news-btn" id="" name="subscribe_btn"><span>Subscribe</span></button>
-                                    </span>
-                                </div><!-- /input-group -->
-                            </form><!-- END FORM -->
-                        </div>  
+            <h4>Course layout</h4>
+            <hr style="height:2px;border-width:0;color:gray;background-color:gray">
+            <input class="w3-radio" type="radio" name="courseLayout" value="9" checked>
+            <label>9</label></p>
+            <p>
+            <input class="w3-radio" type="radio" name="courseLayout" value="18">
+            <label>18</label></p>
+        <!-- =========================
+                 Inputs
+        ========================== -->
+            <h4>Date & Time</h4>
+            <hr style="height:2px;border-width:0;color:gray;background-color:gray">
+            <p>Date</p>
+            <input class="w3-input w3-animate-input" type="text" style="width:135px" name="date" value="{{currentdate}}"><br>
+            <p>Start timespan</p>
+            <input class="w3-input w3-animate-input" type="text" style="width:135px" name="timeSpanStart" value="{{currenttime}}"><br>
+            <p>End timespan</p>
+            <input class="w3-input w3-animate-input" type="text" style="width:135px" name="timeSpanEnd" value="{{currenttime}}"><br>
+            <h4>Wheater data</h4>
+            <hr style="height:2px;border-width:0;color:gray;background-color:gray">
+            <p>
+            <input class="w3-check" type="checkbox" name="useWeatherData">
+            <label>Use weather data</label></p>
+            <label>Minimum temperature [°C]</label>
+            <input class="w3-input w3-animate-input" type="text" style="width:135px" name="minTemp" value="12"><br>
+            <label>Maximum rain chance [%]</label>
+            <input class="w3-input w3-animate-input" type="text" style="width:135px" name="maxRain" value="50"><br>
+            <label>Maximum wind speed [km/h]</label>
+            <input class="w3-input w3-animate-input" type="text" style="width:135px" name="maxWind" value="30"><br>
+        <!-- =========================
+                 Partners
+        ========================== -->
+          <h4>Partner selection</h4>
+          <hr style="height:2px;border-width:0;color:gray;background-color:gray">
+          {% for i in range(1, 5) %}
+                <hr>
+                <div class="w3-row w3-section">
+                  <div class="w3-col" style="width:50px"><i class="w3-xxlarge fa fa-user"></i></div>
+                    <div class="w3-rest">
+                      <input class="w3-input w3-border" type="text" name="firstName{{i}}" placeholder="{{i}}.) First Name">
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- =========================
-                 FEATURES
-        ========================== -->
-
-        <section class="features parallax" data-stellar-background-ratio="0.7" id="features">
-            <div class="container">
-                <div class="row text-center">
-                    <div class="col-lg-4 col-md-4">
-                        <div class="features-box">
-                            <div class="open-overlay"><i class="icon-lightbulb"></i></div>
-                            <h4>High Quality</h4>
-                            <p>Nullam posuere, libero dolor molestie mi, vitae rutrum odio urna non dui.Nullam posuere, libero dolor molestieabd mi, vitae.</p>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4">
-                        <div class="features-box">
-                            <div class="open-overlay"><i class="icon-ribbon"></i></div>
-                            <h4>Great Features</h4>
-                            <p>Nullam posuere, libero dolor molestie mi, vitae rutrum odio urna non dui.Nullam posuere, libero dolor molestieabd mi, vitae.</p>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4">
-                        <div class="features-box">
-                            <div class="open-overlay"><i class="icon-circle-compass"></i></div>
-                            <h4>Customer Services</h4>
-                            <p>Nullam posuere, libero dolor molestie mi, vitae rutrum odio urna non dui.Nullam posuere, libero dolor molestieabd mi, vitae.</p>
-                        </div>
+                <div class="w3-row w3-section">
+                  <div class="w3-col" style="width:50px"><i class="w3-xxlarge fa fa-user"></i></div>
+                    <div class="w3-rest">
+                      <input class="w3-input w3-border" type="text" name="lastName{{i}}" placeholder="{{i}}.) Last Name">
                     </div>
                 </div>
-            </div>
-        </section>    
+          {% endfor %}
+            <button class="w3-button w3-block w3-section w3-blue w3-ripple w3-padding">Reservation</button>
+        </form>
 
-        <!-- =========================
-                 CONTACT
-        ========================== -->
-
-        <section id="contact" class="contact">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12 col-md-12">
-                        <h4>Get In Touch</h4>
-                        <div class="line-separate line-white text-center"><span></span></div>
-                        <p>7-Indus House, Area name,city name -1230009</p>
-                    </div> <!-- end Our Location -->
-                </div> <!-- end row -->
-                <!-- CONTACT FORM -->
-                <div id="cformSuccessMsg" style="display: none;" class="confirm-message"></div>
-                <form id="" name="contactForm" method="POST" >
-                    <div class="row">
-                        <div class="col-lg-4 col-md-4 col-lg-offset-2 col-md-offset-2">
-                            <input class="" type="text" name="contact_name" id="contact_name" placeholder="Name" />
-                        </div> <!-- end Name -->
-                        <div class="col-lg-4 col-md-4">
-                            <input class="" type="text" name="contact_email" id="contact_email" placeholder="Email" />
-                        </div> <!-- end Email -->
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-8 col-md-8 col-lg-offet-2 col-md-offset-2">
-                            <textarea name="contact_message" id="contact_message" placeholder="Message"></textarea>
-                        </div>
-                    </div> <!-- end Message -->
-                    <div class="row">
-                        <div class="col-md-8 col-md-offset-2">
-                            <div class="text-right">
-                                <button class="btn btn-custom" id="contact_submit_btn" name="contact_submit_btn"><span>Send Message</span></button>
-                            </div>
-                        </div>
-                    </div> <!-- end button -->
-                </form><!-- END FORM -->
-            </div> <!-- end container -->
-        </section> <!-- end Contact -->
-
-        <!-- =========================
-                 FOOTER
-        ========================== -->
-
-        <footer class="footer">
-            <div class="container text-center">
-                <div class="row">
-                    <div class="col-md-12">
-                        <ul class="social list-inline">
-                            <li class="social-btn" id="fb"><a href="#"><i class="fa fa-facebook"></i></a></li>
-                            <li class="social-btn" id="tw"><a href="#"><i class="fa fa-twitter"></i></a></li>
-                            <li class="social-btn" id="tbl"><a href="#"><i class="fa fa-tumblr"></i></a></li>
-                            <li class="social-btn" id="pin"><a href="#"><i class="fa  fa-pinterest"></i></a></li>
-                            <li class="social-btn" id="flk"><a href="#"><i class="fa  fa-flickr"></i></a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="row">
-                    <p class="copyright">Copyright© 2016 <a href="http://templatestock.co">Template Stock</p>
-                </div>
-            </div>
-        </footer>
-            
         <!-- JAVASCRIPTS -->
         <script src="static/js/jquery.min.js"></script>
         <script src="static/js/jquery.lwtCountdown-1.0.js"></script>

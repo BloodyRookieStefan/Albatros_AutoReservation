@@ -61,10 +61,10 @@ class ExecutionController:
                     self.CourseLayout = None
                     self.WeatherForecast = None
                     # Get course layout when 9 course is booked
-                    if lib.settings.Document['courseBooking_enum'] == BookingMode.Nine:
-                        self.run_course_layout()
-                    else:
-                        print('Skip course layout because booking 18 course is enabled')
+                    #if lib.settings.Document['courseBooking_enum'] == BookingMode.Nine:
+                    #    self.run_course_layout()
+                    #else:
+                    #    print('Skip course layout because booking 18 course is enabled')
                     # Get weather data if needed
                     if lib.settings.Document['use_nice_weather_golfer']:
                         self.run_weather_forecast()
