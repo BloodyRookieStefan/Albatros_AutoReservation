@@ -1,6 +1,14 @@
+'''
+#############################################################################################
+@brief Browser functions for course layout
+@param self.FilePath - Path where the layout file should be generated
+#############################################################################################
+'''
+
 import os
 import yaml
 
+from .logging import log, log_warning, log_error
 from .basic_actions import CBasicActions
 from selenium.webdriver.common.by import By
 

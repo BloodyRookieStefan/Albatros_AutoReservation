@@ -1,8 +1,10 @@
 '''
 #############################################################################################
-@brief Contains parsed settings.yaml
+@brief Functions to control settings.yaml
 @param self.FilePath - Path to *.yaml file
+@param self.Size - Size document
 @param self.Document - Read document
+@param self.Workspace - Program environment Linux/Windows
 #############################################################################################
 '''
 

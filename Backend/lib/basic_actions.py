@@ -1,3 +1,8 @@
+'''
+#############################################################################################
+@brief Collection of basic browser actions and functions
+#############################################################################################
+'''
 
 from .progEnums import *
 from selenium.webdriver.support.ui import WebDriverWait

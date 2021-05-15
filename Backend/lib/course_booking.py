@@ -1,7 +1,14 @@
+'''
+#############################################################################################
+@brief Browser functions for course booking
+#############################################################################################
+'''
+
 import time
 import re
 import datetime
 
+from .logging import log, log_warning, log_error
 from .progEnums import *
 from .basic_actions import CBasicActions
 from selenium import webdriver
@@ -37,7 +44,7 @@ class CCourseBooking(CBasicActions):
         return self.parse_timeslots()
 
     def login(self):
-        print('Website login...')
+        log('Website login...')
         # Set username
         self.set_textbox(_type=By.ID, _tag='user', _sendKeys=self.Settings.Document['username'])
         # Set pwd
@@ -53,13 +60,13 @@ class CCourseBooking(CBasicActions):
         self.click_button(_type=By.ID, _tag='pr_res_calendar')
 
     def set_date(self):
-        print('Set date: {}'.format(self.Settings.Document['date']))
+        log('Set date: {}'.format(self.Settings.Document['date']))
         self.switch_to_frame(_type=By.ID, _tag='dynamic')
         # Set Date
         self.set_textbox(_type=By.ID, _tag='date', _sendKeys=self.Settings.Document['date'], _keyPress=Keys.ENTER, _options='control+a')
 
     def set_course(self, _course):
-        print('Set course: {}'.format(_course))
+        log('Set course: {}'.format(_course))
         # Set course
         self.set_dropdown(_tag='ro_id', _target=_course)
 
@@ -118,7 +125,7 @@ class CCourseBooking(CBasicActions):
 
 
     def partner_reservation(self, _id):
-        print('Partner reservation')
+        log('Partner reservation')
         # Toggle frames??? Without not working?
         self.switch_toDefaultFrame()
         self.switch_to_frame(_type=By.ID, _tag='dynamic')
@@ -127,7 +134,7 @@ class CCourseBooking(CBasicActions):
         for i in range(0, 4):
             partner = self.Settings.Document['round'][_id]['partner{}'.format(i)][0]
             if partner['firstName'] != 'None' and partner['lastName'] != 'None':
-                print('Partner reservation: {} {}'.format(partner['firstName'], partner['lastName']))
+                log('Partner reservation: {} {}'.format(partner['firstName'], partner['lastName']))
                 # Set first name
                 self.set_textbox(_type=By.NAME, _tag='fname', _sendKeys=partner['firstName'], _options=['control+a'])
                 # Set last name
@@ -153,14 +160,14 @@ class CCourseBooking(CBasicActions):
         return True
 
     def send_reservation(self):
-        print('Reservation send')
+        log('Reservation send')
         return
         if not self.Settings.Document['developermode']:
             # Make reservation
             print('Reservation send')
             click_button(_driver=self.Driver, _type=By.ID, _tag='btnNext')
         else:
-            print('WARNING: Developer mode active. No reservation send')
+            log_warning('Developer mode active. No reservation send')
 
     def logout(self):
         self.switch_toDefaultFrame()
@@ -224,6 +231,11 @@ class CCourseBooking(CBasicActions):
     def get_timeslotTable(self):
         return self.Driver.find_elements_by_xpath("//*[@id='gridarea']/table/tbody")
 
+'''
+#############################################################################################
+@brief Timeslot object. Contains timeslot information
+#############################################################################################
+'''
 class CTimeslot:
 
     Str_text = None

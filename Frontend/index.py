@@ -138,5 +138,5 @@ def get_course_layout():
     return tempCreator.read_course_layout()
 
 if __name__ == "__main__":
-    app.run()
-    #app.run("192.168.59.100")
+    #app.run()
+    app.run("192.168.59.100")

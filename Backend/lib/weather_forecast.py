@@ -1,5 +1,12 @@
+'''
+#############################################################################################
+@brief Browser functions for weather forecast
+#############################################################################################
+'''
+
 import copy
 
+from .logging import log, log_warning, log_error
 from datetime import datetime
 from .basic_actions import CBasicActions
 from selenium.webdriver.common.keys import Keys
@@ -120,7 +127,11 @@ class CWheaterForecast(CBasicActions):
         self.wait_until_tag_is_present(_type=By.ID, _tag="ifa-angle-right")
         self.Driver.find_element(By.ID, "ifa-angle-right").click()
 
-
+'''
+#############################################################################################
+@brief Weather cast object. Contains weather information
+#############################################################################################
+'''
 class CCast:
 
     Date = None                 # Date
