@@ -25,8 +25,9 @@ class ExecutionController:
     InitialisationDone = False
 
     Timeslots = None
-    CourseLayout = None
     WeatherForecast = None
+
+    LastLayoutCheck = None
 
     def __init__(self):
         pass
@@ -40,9 +41,13 @@ class ExecutionController:
 
         # Endless loop
         while True:
+            # ----------------------------------------------
             # Check if setting file exists
+            # ----------------------------------------------
             if os.path.exists(lib.settings.FilePath) and lib.settings.Document is None:
                 lib.settings.read()
+                self.init_new_request()
+                print('')
                 print('New execution order found. Will be executed at', lib.settings.Document['executiontime_converted'])
             else:
                 # File was removed
@@ -52,30 +57,31 @@ class ExecutionController:
                 # File has changed
                 if lib.settings.sizeHasChanged():
                     lib.settings.read()
+                    self.init_new_request()
+                    print('')
                     print('Existing execution order changed. Will be executed at', lib.settings.Document['executiontime_converted'])
-
-            # New execution in progress
+            # ----------------------------------------------
+            # Check if it is time to parse course layout
+            # Check layout on startup or at 3 O'Clock in the morning
+            # ----------------------------------------------
+            if self.LastLayoutCheck is None or datetime.now().hour == 3:
+                self.run_course_layout()
+                self.LastLayoutCheck = datetime.now()
+                print('Layout list updated at', self.LastLayoutCheck)
+            # ----------------------------------------------
+            # New execution in progress when we found a settings file
+            # ----------------------------------------------
             if lib.settings.Document is not None:
                 # Do initialisation 10 minutes before official execution
                 if lib.settings.Document['executiontime_converted'] < datetime.now() + timedelta(minutes=10) and not self.InitialisationDone:
-                    print('')
                     print('Doing initialisation at', datetime.now())
-                    print('')
-                    # Clear previous run
-                    self.CourseLayout = None
-                    self.WeatherForecast = None
-                    # Get course layout when 9 course is booked
-                    #if lib.settings.Document['courseBooking_enum'] == BookingMode.Nine:
-                    #    self.run_course_layout()
-                    #else:
-                    #    print('Skip course layout because booking 18 course is enabled')
-                    # Get weather data if needed
                     if lib.settings.Document['use_nice_weather_golfer']:
                         conditionMet = self.run_weather_forecast()
                         if not conditionMet:
                             print('Weather condition not met. Skip booking')
                             self.endBookingSession()
-                        print('Weather condition met')
+                        else:
+                            print('Weather condition met')
                     else:
                         print('Skip weather forecast because function disabled')
                     print('Initialisation done')
@@ -83,23 +89,29 @@ class ExecutionController:
 
                 # Check if execution time is reached
                 if lib.settings.Document is not None and lib.settings.Document['executiontime_converted'] < datetime.now():
-                    print('')
                     print('New execution time reached at', datetime.now())
-                    print('')
 
-                    self.run_course_booking()
+                    #self.run_course_booking()          # ----------------------------------- DISABLED
                     self.endBookingSession()
                 else:
                     time.sleep(indleTimeInSec)
             else:
                 time.sleep(indleTimeInSec)
+            # ----------------------------------------------
+
+    def init_new_request(self):
+        # Clear previous run
+        self.BrowserType = None
+        self.Timeslots = None
+        self.WeatherForecast = None
+
+        if lib.settings.Document['browser'].lower() == 'chrome':
+            self.BrowserType = lib.BrowserType.Chrome
 
     def run_course_layout(self):
         # Start browser
-        self.CourseLayout = None
-        self.CourseLayout = self.start_browser_course_layout()
+        self.start_browser_course_layout()
         self.Browser.dispose()
-        print('Layout list updated')
 
     def run_weather_forecast(self):
         # Start browser
@@ -167,8 +179,11 @@ class ExecutionController:
         print('Round selected => Timeslot: {0}, Course: {1}, IsFree: {2} '.format(selectedTimeslot.Slot.strftime('%d.%m.%Y - %H:%M'), lib.settings.Document['courseBooking_enum'].name, selectedTimeslot.IsFree))
 
         self.Browser.reservation(_timeslot=selectedTimeslot)
-        self.Browser.partner_reservation(_id=0)
-        self.Browser.send_reservation()
+        result = self.Browser.partner_reservation(_id=0)
+        if result:
+            self.Browser.send_reservation()
+        else:
+            print('Not all parnters could be found. Skip reservation')
 
         # Get execution time start
         self.ExecutionTime_Stop = time.time()
@@ -184,8 +199,11 @@ class ExecutionController:
 
     def endBookingSession(self):
         print('Remove setting file')
-        if os.path.exists(lib.settings.FilePath):
-            os.remove(lib.settings.FilePath)
+        while os.path.exists(lib.settings.FilePath):
+            try:
+                os.remove(lib.settings.FilePath)
+            except:
+                pass
 
         print('Execution done')
         # Execution done
@@ -195,18 +213,17 @@ class ExecutionController:
     # region Start browser
     def start_browser_course_layout(self):
         print('Start browser COURSE LAYOUT update...')
-        self.Browser = lib.CBrowser(lib.BrowserType.Chrome, lib.settings)
+        self.Browser = lib.CBrowser(BrowserType.Chrome, lib.settings)
         return self.Browser.start_browser_course_layout()
 
     def start_browser_weather_forecast(self):
         print('Start browser WEATHER FORECAST update...')
-        self.Browser = lib.CBrowser(lib.BrowserType.Chrome, lib.settings)
+        self.Browser = lib.CBrowser(BrowserType.Chrome, lib.settings)
         return self.Browser.start_browser_wheater_forecast()
-
 
     def start_browser_course_booking(self):
         print('Start browser COURSE BOOKING...')
-        self.Browser = lib.CBrowser(lib.BrowserType.Chrome, lib.settings)
+        self.Browser = lib.CBrowser(BrowserType.Chrome, lib.settings)
         return self.Browser.start_browser_course_booking()
     #endregion
 

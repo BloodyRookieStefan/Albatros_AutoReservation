@@ -1,5 +1,9 @@
 from enum import Enum
 
+class OperatingSystem(Enum):
+    Windows = 0
+    Linux = 1
+
 class BrowserType(Enum):
     Chrome = 0
     Firefox = 1

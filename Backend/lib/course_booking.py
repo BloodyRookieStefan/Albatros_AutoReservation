@@ -136,10 +136,21 @@ class CCourseBooking(CBasicActions):
                 self.click_button(_type=By.ID, _tag='btnSearch')
                 # Get add button and press it. Classification by image
                 hits = self.Driver.find_elements(By.CLASS_NAME, 'abutton')
+                foundPartners = 0
+                addElement = None
                 for hit in hits:
                     if 'img/plus.gif' in hit.get_attribute("src"):
-                        hit.click()
+                        foundPartners += 1
+                        addElement = hit
                         break
+
+                # We expect exact one hit
+                if addElement is not None and foundPartners == 1:
+                    addElement.click()
+                else:
+                    return False
+
+        return True
 
     def send_reservation(self):
         print('Reservation send')
@@ -189,6 +200,7 @@ class CCourseBooking(CBasicActions):
             element.send_keys(Keys.DOWN)
         elif _target == BookingMode.Nine:
             # Press key down
+            element.send_keys(Keys.DOWN)
             element.send_keys(Keys.DOWN)
             element.send_keys(Keys.DOWN)
         else:

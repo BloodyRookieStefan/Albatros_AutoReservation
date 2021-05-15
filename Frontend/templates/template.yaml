@@ -31,8 +31,6 @@ maxWind_km/h            : None
 # General settings
 executespan       : 3                           # How many days before we can book in Albatros
 executetime       : 21-00                       # Booking time
-workspace         : Windows
+browser           : Chrome                      # Browser type. Currently Chrome only
 developermode     : 1
 weburl_booking    : https://albatros.gc-sl.de/albport/index.jsp?language=de&sid=7549441721F84A3CB517BA19E42010D6
-weburl_layout     : https://golfclubliebenstein.de/platzbenutzung
-weburl_weather    : https://www.agrarwetter.net

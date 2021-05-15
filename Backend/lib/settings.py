@@ -8,6 +8,7 @@
 
 import yaml
 import os
+import sys
 
 from datetime import datetime, timedelta
 from .progEnums import *
@@ -17,10 +18,17 @@ class CSettings:
     FilePath = ''
     Size = None
     Document = None
+    Workspace = None
 
     def __init__(self):
         # Build settings path
-        self.FilePath = '{}\\settings.yaml'.format(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+        self.FilePath = '{}/settings.yaml'.format(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+        if sys.platform == 'win32':
+            self.Workspace = OperatingSystem.Windows
+        elif sys.platform == 'linux':
+            self.Workspace = OperatingSystem.Linux
+        else:
+            raise ValueError('Unkown operating system: {0}'.format(sys.platform))
 
     def read(self):
         # Check if file exists

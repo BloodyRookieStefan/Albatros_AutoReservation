@@ -109,6 +109,40 @@
             <p>
             <input class="w3-radio" type="radio" name="courseLayout" value="18">
             <label>18</label></p>
+            {% if courseLayoutPresent %}
+            <hr>
+            <div class="w3-container">
+                <table style="width:100%">
+                  <tr>
+                    <th>Day</th>
+                    <th>Date</th>
+                    <th>18 Course</th>
+                    <th>9 Course</th>
+                    <th>PIN position</th>
+                    <th>Comment</th>
+                  </tr>
+                  {% for i in courseLayout %}
+                  <tr>
+                    {% if courseLayout[i].day == 'Sonntag' or courseLayout[i].day == 'Samstag' %}
+                        <td><b>{{courseLayout[i].day}}</b></td>
+                        <td><b>{{courseLayout[i].date}}</b></td>
+                        <td><b>{{courseLayout[i].course18}}</b></td>
+                        <td><b>{{courseLayout[i].course9}}</b></td>
+                        <td><b>{{courseLayout[i].pinpos}}</b></td>
+                        <td>{{courseLayout[i].comment}}</td>
+                    {% else %}
+                        <td>{{courseLayout[i].day}}</td>
+                        <td>{{courseLayout[i].date}}</td>
+                        <td>{{courseLayout[i].course18}}</td>
+                        <td>{{courseLayout[i].course9}}</td>
+                        <td>{{courseLayout[i].pinpos}}</td>
+                        <td>{{courseLayout[i].comment}}</td>
+                    {% endif %}
+                  </tr>
+                  {% endfor %}
+                </table>
+            </div>
+            {% endif %}
         <!-- =========================
                  Inputs
         ========================== -->
@@ -126,11 +160,11 @@
             <input class="w3-check" type="checkbox" name="useWeatherData">
             <label>Use weather data</label></p>
             <label>Minimum temperature [°C]</label>
-            <input class="w3-input w3-animate-input" type="text" style="width:135px" name="minTemp" value="12"><br>
+            <input class="w3-input w3-animate-input" type="text" style="width:135px" name="minTemp" value="10"><br>
             <label>Maximum rain chance [%]</label>
-            <input class="w3-input w3-animate-input" type="text" style="width:135px" name="maxRain" value="50"><br>
+            <input class="w3-input w3-animate-input" type="text" style="width:135px" name="maxRain" value="70"><br>
             <label>Maximum wind speed [km/h]</label>
-            <input class="w3-input w3-animate-input" type="text" style="width:135px" name="maxWind" value="30"><br>
+            <input class="w3-input w3-animate-input" type="text" style="width:135px" name="maxWind" value="50"><br>
         <!-- =========================
                  Partners
         ========================== -->

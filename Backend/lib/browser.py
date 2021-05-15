@@ -12,7 +12,7 @@ from selenium import webdriver
 from .course_booking import CCourseBooking
 from .course_layout import CCourseLayout
 from .weather_forecast import CWheaterForecast
-from.progEnums import BrowserType
+from.progEnums import BrowserType, OperatingSystem
 
 class CBrowser(CCourseBooking, CCourseLayout, CWheaterForecast):
 
@@ -28,32 +28,16 @@ class CBrowser(CCourseBooking, CCourseLayout, CWheaterForecast):
 
         if _type == BrowserType.Chrome:
             options = webdriver.ChromeOptions()
-            if self.Settings.Document['workspace'].lower() == 'windows':
-                options.add_argument('{0}\chromedriver.exe'.format(directorypath))
-            elif self.Settings.Document['workspace'].lower() == 'Linux':
-                options.add_argument('{0}\chromedriver'.format(directorypath))
+            if self.Settings.Workspace == OperatingSystem.Windows:
+                options.add_argument('{0}/chromedriver.exe'.format(directorypath))
+            elif self.Settings.Workspace == OperatingSystem.Linux:
+                pass
             else:
                 raise Exception('{} is an unkown workspace'.format(self.Settings.Document['workspace']))
 
             for option in optionsList:
                 options.add_argument(option)
-
             self.Driver = webdriver.Chrome(options=options)
-        elif _type == BrowserType.Firefox:
-            options = webdriver.FirefoxOptions()
-            # TODO
-            '''
-            if self.Settings.Document['workspace'].lower() == 'windows':
-                options.add_argument('{0}\chromedriver.exe'.format(directorypath))
-            elif self.Settings.Document['workspace'].lower() == 'Linux':
-                options.add_argument('{0}\chromedriver'.format(directorypath))
-            else:
-                raise Exception('{} is an unkown workspace'.format(self.Settings.Document['workspace']))
-            '''
-            for option in optionsList:
-                options.add_argument(option)
-
-            self.Driver = webdriver.Firefox(options=options)
         else:
             raise Exception('Unknown browser')
 

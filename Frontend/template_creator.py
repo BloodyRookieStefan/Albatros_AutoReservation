@@ -7,6 +7,8 @@ class CTemplateCreator:
     SourceFile = '{}/Frontend/templates/template.yaml'.format(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
     TargetFile = '{}/Backend/settings.yaml'.format(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
+    CourseLayout = '{}/Backend/latestCourseLayout.yaml'.format(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+
     Document = None
 
     def read_template(self):
@@ -25,6 +27,13 @@ class CTemplateCreator:
         with open(self.TargetFile, 'w') as file:
             yaml.dump(self.Document, file, default_flow_style=False)
 
+    def read_course_layout(self):
+        # Check if file exists
+        if not os.path.exists(self.CourseLayout):
+            return []
+        # Read template
+        with open(self.CourseLayout, 'r') as file:
+            return yaml.safe_load(file)
 
 
 

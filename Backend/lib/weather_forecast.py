@@ -12,7 +12,7 @@ class CWheaterForecast(CBasicActions):
 
     def start_browser_wheater_forecast(self):
         # Load website
-        self.Driver.get(self.Settings.Document['weburl_weather'])
+        self.Driver.get('https://www.agrarwetter.net')
 
         return self.parse_weather_forecast()
 
@@ -116,6 +116,8 @@ class CWheaterForecast(CBasicActions):
         return wheaterForecast
 
     def move_to_next_4_days(self):
+        # Wait until present
+        self.wait_until_tag_is_present(_type=By.ID, _tag="ifa-angle-right")
         self.Driver.find_element(By.ID, "ifa-angle-right").click()
 
 

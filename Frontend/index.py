@@ -3,7 +3,7 @@ import re
 
 from flask import Flask, render_template, request, redirect, url_for
 from template_creator import CTemplateCreator
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 tempCreator = CTemplateCreator()
@@ -11,13 +11,22 @@ tempCreator.read_template()
 
 @app.route("/")
 def index():
+    # Check if booking is in progress
     bookingInProgess = False
     if os.path.exists(tempCreator.TargetFile):
         bookingInProgess = True
-    return render_template("index.html", currentdate=datetime.now().strftime('%d.%m.%Y'),
+    # Check if course layout is available
+    courseLayoutPresent = True
+    courseLayout = get_course_layout()
+    if len(courseLayout) == 0:
+        courseLayoutPresent = False
+
+    return render_template("index.html", currentdate=(datetime.now() + timedelta(days=3)).strftime('%d.%m.%Y'),
                            currenttime=datetime.now().strftime('%H-00'),
                            username=tempCreator.Document['username'],
-                           bookinginprogess=bookingInProgess)
+                           bookinginprogess=bookingInProgess,
+                           courseLayoutPresent=courseLayoutPresent,
+                           courseLayout=courseLayout)
 
 @app.route("/success")
 def success():
@@ -124,6 +133,9 @@ def check_input(_type, _value):
 
 def format_error_str(_item, _expected, _got):
     return "{0} had not the correct format - Expected: \"{1}\" - Got: \"{2}\"".format(_item, _expected, _got)
+
+def get_course_layout():
+    return tempCreator.read_course_layout()
 
 if __name__ == "__main__":
     app.run()

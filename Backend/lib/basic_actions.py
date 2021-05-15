@@ -28,23 +28,24 @@ class CBasicActions():
         return self.Driver.find_elements_by_xpath("//a[@href]")
 
     def course_name_to_enum(self, _text):
-        if _text == 'GELB / ROT':
+        _text = _text.replace(' ', '').lower()
+        if _text == 'gelb/rot':
             return CourseType.Yellow_Red
-        elif _text == 'GELB / BLAU':
+        elif _text == 'gelb/blau':
             return CourseType.Yellow_Blue
-        elif _text == 'ROT / GELB':
+        elif _text == 'rot/gelb':
             return CourseType.Red_Yellow
-        elif _text == 'ROT / BLAU':
+        elif _text == 'rot/blau':
             return CourseType.Red_Blue
-        elif _text == 'BLAU / ROT':
+        elif _text == 'blau/rot':
             return CourseType.Blue_Red
-        elif _text == 'BLAU / GELB':
+        elif _text == 'blau/gelb':
             return CourseType.Blue_Yellow
-        elif _text == 'GELB':
+        elif _text == 'gelb':
             return CourseType.Yellow
-        elif _text == 'BLAU':
+        elif _text == 'blau':
             return CourseType.Blue
-        elif _text == 'ROT':
+        elif _text == 'rot':
             return CourseType.Red
         else:
             raise Exception('Failed to parse course type: {0}'.format(_text))

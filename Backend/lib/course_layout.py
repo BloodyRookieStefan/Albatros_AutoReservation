@@ -1,16 +1,21 @@
+import os
+import yaml
 
 from .basic_actions import CBasicActions
-
 from selenium.webdriver.common.by import By
 
 class CCourseLayout(CBasicActions):
+
+    FilePath = ''
 
     def __init__(self):
         pass
 
     def start_browser_course_layout(self):
+        self.FilePath = '{}/latestCourseLayout.yaml'.format(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+
         # Load website
-        self.Driver.get(self.Settings.Document['weburl_layout'])
+        self.Driver.get('https://golfclubliebenstein.de/platzbenutzung')
 
         # Parse course layout
         return self.parse_course_layout()
@@ -30,43 +35,53 @@ class CCourseLayout(CBasicActions):
             elif i == 1:
                 date = entry.text
             elif i == 2:
-                # Valid course or is it not set yet on website?
-                if entry.text != '':
-                    course18 = self.course_name_to_enum(entry.text)
-                else:
-                    course18 = None
+                 course18 = entry.text
             elif i == 3:
-                # Valid course or is it not set yet on website?
-                if entry.text != '':
-                    course9 = self.course_name_to_enum(entry.text)
-                else:
-                    course9 = None
+                 course9 = entry.text
             elif i == 4:
                 pinPos = entry.text
             elif i == 5:
                 comment = entry.text
                 # Only if we could parse the information create entry
-                if course9 is not None and course18 is not None:
+                if course9 is not '' and course18 is not '':
                     courseLayout[date] = CLayout(day, date, course18, course9, pinPos, comment)
                 i = -1
 
             i = i + 1
 
-        return courseLayout
+        self.write_to_disk(courseLayout)
 
-class CLayout:
+    def write_to_disk(self, _dict):
+        # Remove old layout
+        if os.path.exists(self.FilePath):
+            os.remove(self.FilePath)
+
+        # Create dict we can save without python objects
+        target = dict()
+        for date in _dict:
+            target[date] = {'date':date, 'day':_dict[date].Day, 'course18':_dict[date].Course18_Text, 'course9':_dict[date].Course9_Text, 'pinpos':_dict[date].PinPos, 'comment':_dict[date].Comment}
+
+        # Save new course layout
+        with open(self.FilePath, 'w') as file:
+            yaml.dump(target, file, default_flow_style=False)
+
+class CLayout(CBasicActions):
 
     Day = None
     Date = None
     Course18 = None
+    Course18_Text = None
     Course9 = None
+    Course9_Text = None
     PinPos = None
     Comment = ''
 
     def __init__(self, _day, _date, _course18, _course9, _pinPos, _comment):
         self.Day = _day
         self.Date = _date
-        self.Course18 = _course18
-        self.Course9 = _course9
+        self.Course18 = self.course_name_to_enum(_course18)
+        self.Course18_Text = _course18
+        self.Course9 = self.course_name_to_enum(_course9)
+        self.Course9_Text = _course9
         self.PinPos = _pinPos
         self.Comment = _comment
