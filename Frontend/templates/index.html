@@ -104,13 +104,7 @@
         ========================== -->
             <h4>Course layout</h4>
             <hr style="height:2px;border-width:0;color:gray;background-color:gray">
-            <input class="w3-radio" type="radio" name="courseLayout" value="9" checked>
-            <label>9</label></p>
-            <p>
-            <input class="w3-radio" type="radio" name="courseLayout" value="18">
-            <label>18</label></p>
             {% if courseLayoutPresent %}
-            <hr>
             <div class="w3-container">
                 <table style="width:100%">
                   <tr>
@@ -142,18 +136,66 @@
                   {% endfor %}
                 </table>
             </div>
+            <hr>
             {% endif %}
+            <input class="w3-radio" type="radio" name="courseLayout" value="9" checked>
+            <label>9</label></p>
+            <p>
+            <input class="w3-radio" type="radio" name="courseLayout" value="18">
+            <label>18</label></p>
+            <hr>
         <!-- =========================
                  Inputs
         ========================== -->
             <h4>Date & Time</h4>
             <hr style="height:2px;border-width:0;color:gray;background-color:gray">
             <p>Date</p>
-            <input class="w3-input w3-animate-input" type="text" style="width:135px" name="date" value="{{currentdate}}"><br>
+            <p>
+            <select name="dateD" id="dateD">
+                 {% for i in range(1, 31) %}
+                     <option value="{{i}}"{% if i == currentdateD %} selected {% endif %}>{% if i < 10 %}0{% endif %}{{i}}</option>
+                 {% endfor %}
+            </select> .
+            <select name="dateM" id="dateM">
+                 {% for i in range(1, 13) %}
+                     <option value="{{i}}"{% if i == currentdateM %} selected {% endif %}>{% if i < 10 %}0{% endif %}{{i}}</option>
+                 {% endfor %}
+            </select> .
+            <select name="dateY" id="dateY">
+                 {% for i in range(currentdateY, currentdateY + 2) %}
+                    <option value="{{i}}"{% if i == currentdateY %} selected {% endif %}>{{i}}</option>
+                 {% endfor %}
+            </select>
+            </p>
+            <hr>
             <p>Start timespan</p>
-            <input class="w3-input w3-animate-input" type="text" style="width:135px" name="timeSpanStart" value="{{currenttime}}"><br>
+            <p>
+            <select name="startH" id="startH">
+                 {% for i in range(6, 21) %}
+                    <option value="{{i}}"{% if i == 9 %} selected {% endif %}>{% if i < 10 %}0{% endif %}{{i}}</option>
+                 {% endfor %}
+            </select> :
+            <select name="startM" id="startM">
+                 {% for i in range(0, 60) %}
+                    <option value="{{i}}"{% if i == 0 %} selected {% endif %}>{% if i < 10 %}0{% endif %}{{i}}</option>
+                 {% endfor %}
+            </select>
+            </p>
+            <hr>
             <p>End timespan</p>
-            <input class="w3-input w3-animate-input" type="text" style="width:135px" name="timeSpanEnd" value="{{currenttime}}"><br>
+            <p>
+            <select name="endH" id="endH">
+                 {% for i in range(6, 21) %}
+                    <option value="{{i}}"{% if i == 12 %} selected {% endif %}>{% if i < 10 %}0{% endif %}{{i}}</option>
+                 {% endfor %}
+            </select> :
+            <select name="endM" id="endM">
+                 {% for i in range(0, 60) %}
+                    <option value="{{i}}"{% if i == 0 %} selected {% endif %}>{% if i < 10 %}0{% endif %}{{i}}</option>
+                 {% endfor %}
+            </select>
+            </p>
+            <hr>
             <h4>Wheater data</h4>
             <hr style="height:2px;border-width:0;color:gray;background-color:gray">
             <p>
@@ -170,7 +212,7 @@
         ========================== -->
           <h4>Partner selection</h4>
           <hr style="height:2px;border-width:0;color:gray;background-color:gray">
-          {% for i in range(1, 5) %}
+          {% for i in range(1, 4) %}
                 <hr>
                 <div class="w3-row w3-section">
                   <div class="w3-col" style="width:50px"><i class="w3-xxlarge fa fa-user"></i></div>

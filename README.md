@@ -63,7 +63,7 @@ weburl_booking    : https://albatros.gc-sl.de/albport/index.jsp?language=de&sid=
 `developermode` If **1** booking will not be send  
 `weburl` Albatros URL
 
-### Change IP adress
+### Change IP adress for frontend
 `Frontend/index.py`
 ```python
 if __name__ == "__main__":

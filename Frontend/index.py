@@ -21,8 +21,7 @@ def index():
     if len(courseLayout) == 0:
         courseLayoutPresent = False
 
-    return render_template("index.html", currentdate=(datetime.now() + timedelta(days=3)).strftime('%d.%m.%Y'),
-                           currenttime=datetime.now().strftime('%H-00'),
+    return render_template("index.html", currentdateD=(datetime.now() + timedelta(days=3)).day, currentdateM=(datetime.now() + timedelta(days=3)).month, currentdateY=(datetime.now() + timedelta(days=3)).year,
                            username=tempCreator.Document['username'],
                            bookinginprogess=bookingInProgess,
                            courseLayoutPresent=courseLayoutPresent,
@@ -50,27 +49,21 @@ def home():
 def response():
     # Get data from website
     layout = request.form.get("courseLayout")
-    date = request.form.get("date")
-    timespanStart = request.form.get("timeSpanStart")
-    timespanEnd = request.form.get("timeSpanEnd")
+    date = '{}.{}.{}'.format(request.form.get("dateD"), request.form.get("dateM"), request.form.get("dateY"))
+    timespanStart = '{}-{}'.format(request.form.get("startH"), request.form.get("startM"))
+    timespanEnd = '{}-{}'.format(request.form.get("endH"), request.form.get("endM"))
     useWeatherData = request.form.get("useWeatherData")
     minTemp = request.form.get("minTemp")
     maxRain = request.form.get("maxRain")
     maxWind = request.form.get("maxWind")
     partnerList = []
-    for i in range(1, 5):
+    for i in range(1, 4):
         firstName = request.form.get("firstName{0}".format(i))
         lastName = request.form.get("lastName{0}".format(i))
 
         partnerList.append((lastName, firstName))
 
     # Validate input data
-    if not check_input(_type='DATE', _value=date):
-        return redirect(url_for("failed", errordata=format_error_str("DATE", "dd.mm.yyyy", date)))
-    if not check_input(_type='TIMEVALUE', _value=timespanStart):
-        return redirect(url_for("failed", errordata=format_error_str("TIMESPANSTART", "hh-mm", timespanStart)))
-    if not check_input(_type='TIMEVALUE', _value=timespanEnd):
-        return redirect(url_for("failed", errordata=format_error_str("TIMESPANEND", "hh-mm", timespanEnd)))
     if useWeatherData is not None:
         if not check_input(_type='DIGITONLY', _value=minTemp):
             return redirect(url_for("failed", errordata=format_error_str("MINIMUM TEMPERATURE", "digit only", minTemp)))
@@ -93,7 +86,7 @@ def response():
     else:
         tempCreator.Document['use_nice_weather_golfer'] = 0
 
-    for i in range(0, 4):
+    for i in range(0, 3):
         if partnerList[i][0] != '' and partnerList[i][1] != '':
             partner = round['partner{}'.format(i)][0]
             partner['firstName'] = partnerList[i][1]
@@ -138,5 +131,5 @@ def get_course_layout():
     return tempCreator.read_course_layout()
 
 if __name__ == "__main__":
-    #app.run()
-    app.run("192.168.59.100")
+    app.run()
+    #app.run("192.168.59.100")

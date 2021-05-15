@@ -1,5 +1,3 @@
-import Backend.lib.Logging
-
 from .browser import *
 from .progEnums import *
 from .settings import settings
