@@ -64,7 +64,7 @@ class ExecutionController:
             # Check if it is time to parse course layout
             # Check layout on startup or at 3 O'Clock in the morning
             # ----------------------------------------------
-            if self.LastLayoutCheck is None or datetime.now().hour == 3:
+            if self.LastLayoutCheck is None or (self.LastLayoutCheck.day < datetime.now().day and datetime.now().hour == 3):
                 self.run_course_layout()
                 self.LastLayoutCheck = datetime.now()
                 print('Layout list updated at', self.LastLayoutCheck)
