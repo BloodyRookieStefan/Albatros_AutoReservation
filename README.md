@@ -82,6 +82,31 @@ app.run("192.168.59.100")
 **Note**: Default port is 5000.  
 You might need to open it on your Raspberry PI 4
 
-## How to run
+## Configure auto login & start
+### Auto login
+1.) Open the Activities overview and start typing Users  
+2.) Click Users to open the panel  
+3.) Select the user account that you want to log in to automatically at startup  
+4.) Press Unlock in the top right corner and type in your password when prompted  
+5.) Switch the Automatic Login switch to on
+### Auto start
+Move to home directory `cd ~`  
+Open your `.profile` file with `sudo nano .profile`
+At the end add following line:
+```shell script
+bash /home/<path to your Albatros folder>/bootAlbatrosService.sh
+```
+Navigate to your Albatros folder  
+Open `bootAlbatrosService.sh` with `sudo nano bootAlbatrosService.sh`
+Change the path to your files
+```shell script
+#!/bin/sh
+xterm -e python3 /home/<path to your Albatros folder>/Backend/main.py &
+xterm -e python3 /home/<path to your Albatros folder>/Frontend/index.py &
+```
+Make it executable with `sudo chmod 777 bootAlbatrosService.sh`  
+After reboot frontend and backend should start automatically
+
+## How to run manually
 Execute `Frontend/index.py` for frontend  
 Execute `Backend/main.py` for backend

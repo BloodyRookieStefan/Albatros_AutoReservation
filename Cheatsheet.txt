@@ -1,4 +1,2 @@
-Start Command:
-
-nohup python3 index.py &
-nohup python3 main.py &
+Mount network drive
+sudo mount -t cifs -o username=stefan //192.168.59.25/Albatros_AutoReservation/ /home/ubuntu/Albatros_AutoReservation/
