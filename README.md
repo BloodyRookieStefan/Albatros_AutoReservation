@@ -91,13 +91,13 @@ You might need to open it on your Raspberry PI 4
 5.) Switch the Automatic Login switch to on
 ### Auto start
 Move to home directory `cd ~`  
-Open your `.profile` file with `sudo nano .profile`
+Open your `.profile` file with `sudo nano .profile`  
 At the end add following line:
 ```shell script
 bash /home/<path to your Albatros folder>/bootAlbatrosService.sh
 ```
 Navigate to your Albatros folder  
-Open `bootAlbatrosService.sh` with `sudo nano bootAlbatrosService.sh`
+Open `bootAlbatrosService.sh` with `sudo nano bootAlbatrosService.sh`  
 Change the path to your files
 ```shell script
 #!/bin/sh

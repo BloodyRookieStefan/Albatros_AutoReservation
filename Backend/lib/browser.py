@@ -12,10 +12,10 @@ from selenium import webdriver
 from .course_booking import CCourseBooking
 from .course_layout import CCourseLayout
 from .weather_forecast import CWheaterForecast
-from.progEnums import BrowserType, OperatingSystem
+from .progEnums import BrowserType, OperatingSystem
+
 
 class CBrowser(CCourseBooking, CCourseLayout, CWheaterForecast):
-
     Driver = None
     Settings = None
 
@@ -28,16 +28,18 @@ class CBrowser(CCourseBooking, CCourseLayout, CWheaterForecast):
 
         if _type == BrowserType.Chrome:
             options = webdriver.ChromeOptions()
-            if self.Settings.Workspace == OperatingSystem.Windows:
-                options.add_argument('{0}/chromedriver.exe'.format(directorypath))
-            elif self.Settings.Workspace == OperatingSystem.Linux:
-                pass
-            else:
-                raise Exception('{} is an unkown workspace'.format(self.Settings.Document['workspace']))
-
             for option in optionsList:
                 options.add_argument(option)
-            self.Driver = webdriver.Chrome(options=options)
+
+            if self.Settings.Workspace == OperatingSystem.Windows:
+                self.Driver = webdriver.Chrome(executable_path='{0}/chromedriver.exe'.format(directorypath, options=options))
+            elif self.Settings.Workspace == OperatingSystem.Linux:
+                self.Driver = webdriver.Chrome(options=options)
+            else:
+                raise Exception('{} is an unknown workspace'.format(self.Settings.Document['workspace']))
+
+
+            #self.Driver = webdriver.Chrome(options=options)
         else:
             raise Exception('Unknown browser')
 
@@ -49,4 +51,3 @@ class CBrowser(CCourseBooking, CCourseLayout, CWheaterForecast):
         except:
             pass
         self.Driver = None
-

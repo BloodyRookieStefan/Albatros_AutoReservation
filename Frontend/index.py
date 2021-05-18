@@ -2,12 +2,38 @@ import os
 import re
 
 from flask import Flask, render_template, request, redirect, url_for
-from template_creator import CTemplateCreator
+from .template_creator import CTemplateCreator
 from datetime import datetime, timedelta
 
+Pipe = None
+CourseLayout = dict()
+CourseStatus = dict()
+
 app = Flask(__name__)
+
 tempCreator = CTemplateCreator()
 tempCreator.read_template()
+
+
+def thread_init(conn):
+    print('Frontend init...')
+    global Pipe
+    Pipe = conn
+    app.run()
+
+
+def get_data():
+    global CourseLayout, CourseStatus
+    # Check if data is available
+    if Pipe.poll():
+        # Clear data
+        CourseLayout = dict()
+        CourseStatus = dict()
+        # Recive data
+        data = Pipe.recv()
+
+        CourseStatus = data[0]
+        CourseLayout = data[1]
 
 @app.route("/")
 def index():
@@ -15,17 +41,26 @@ def index():
     bookingInProgess = False
     if os.path.exists(tempCreator.TargetFile):
         bookingInProgess = True
+
+    # Get data
+    get_data()
+
     # Check if course layout is available
     courseLayoutPresent = True
-    courseLayout = get_course_layout()
-    if len(courseLayout) == 0:
+    if len(CourseLayout) == 0:
         courseLayoutPresent = False
+
+    courseStatusPresent = True
+    if len(CourseStatus) == 0:
+        courseStatusPresent = False
 
     return render_template("index.html", currentdateD=(datetime.now() + timedelta(days=3)).day, currentdateM=(datetime.now() + timedelta(days=3)).month, currentdateY=(datetime.now() + timedelta(days=3)).year,
                            username=tempCreator.Document['username'],
                            bookinginprogess=bookingInProgess,
                            courseLayoutPresent=courseLayoutPresent,
-                           courseLayout=courseLayout)
+                           courseLayout=CourseLayout,
+                           courseStatusPresent=courseStatusPresent,
+                           courseStatus=CourseStatus)
 
 @app.route("/success")
 def success():
@@ -127,9 +162,4 @@ def check_input(_type, _value):
 def format_error_str(_item, _expected, _got):
     return "{0} had not the correct format - Expected: \"{1}\" - Got: \"{2}\"".format(_item, _expected, _got)
 
-def get_course_layout():
-    return tempCreator.read_course_layout()
 
-if __name__ == "__main__":
-    app.run()
-    #app.run("192.168.59.100")

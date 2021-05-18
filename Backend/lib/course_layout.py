@@ -1,7 +1,6 @@
 '''
 #############################################################################################
 @brief Browser functions for course layout
-@param self.FilePath - Path where the layout file should be generated
 #############################################################################################
 '''
 
@@ -14,14 +13,10 @@ from selenium.webdriver.common.by import By
 
 class CCourseLayout(CBasicActions):
 
-    FilePath = ''
-
     def __init__(self):
         pass
 
     def start_browser_course_layout(self):
-        self.FilePath = '{}/latestCourseLayout.yaml'.format(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-
         # Load website
         self.Driver.get('https://golfclubliebenstein.de/platzbenutzung')
 
@@ -57,21 +52,44 @@ class CCourseLayout(CBasicActions):
 
             i = i + 1
 
-        self.write_to_disk(courseLayout)
-
-    def write_to_disk(self, _dict):
-        # Remove old layout
-        if os.path.exists(self.FilePath):
-            os.remove(self.FilePath)
-
         # Create dict we can save without python objects
         target = dict()
-        for date in _dict:
-            target[date] = {'date':date, 'day':_dict[date].Day, 'course18':_dict[date].Course18_Text, 'course9':_dict[date].Course9_Text, 'pinpos':_dict[date].PinPos, 'comment':_dict[date].Comment}
+        for date in courseLayout:
+            target[date] = {'date':date, 'day':courseLayout[date].Day, 'course18':courseLayout[date].Course18_Text, 'course9':courseLayout[date].Course9_Text, 'pinpos':courseLayout[date].PinPos, 'comment':courseLayout[date].Comment}
 
-        # Save new course layout
-        with open(self.FilePath, 'w') as file:
-            yaml.dump(target, file, default_flow_style=False)
+        return target
+
+    # ----------------------------------------------------------
+
+    def start_browser_course_status(self):
+        # Load website
+        self.Driver.get('https://www.golfclubliebenstein.de/')
+
+        # Parse course status
+        return self.parse_course_status()
+
+    def parse_course_status(self):
+        # Setup dict
+        courseStatus = dict()
+        # Wait until loaded
+        self.wait_until_tag_is_present(_type=By.ID, _tag='tablepress-2')
+        # Get table
+        tableEntries = self.Driver.find_elements_by_xpath("//*[@id='tablepress-2']/tbody/tr/td")
+
+        i = 0
+        for entry in tableEntries:
+            if i == 1:
+                courseStatus['YELLOW'] = entry.text
+            elif i == 3:
+                courseStatus['RED'] = entry.text
+            elif i == 5:
+                courseStatus['BLUE'] = entry.text
+            elif i > 5:
+                break
+
+            i = i +1
+
+        return courseStatus
 
 class CLayout(CBasicActions):
 

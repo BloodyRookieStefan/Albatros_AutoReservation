@@ -22,6 +22,12 @@
         	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->
 	</head>
+    <style>
+        textGreen { color: green;
+                    text-decoration: underline;}
+        textRed { color: red;
+                  text-decoration: underline;}
+    </style>
 	<body>
 
         <!-- Preloader -->
@@ -87,7 +93,7 @@
         </section>
 
         <div class="w3-container w3-green">
-          <h2>New course booking for {{username}}</h2>
+            <h2>New course booking for {{username}}</h2>
         </div>
         {% if bookinginprogess %}
         <form class="w3-container w3-cyan" method="POST" action="/cancel">
@@ -104,6 +110,11 @@
         ========================== -->
             <h4>Course layout</h4>
             <hr style="height:2px;border-width:0;color:gray;background-color:gray">
+            {% if courseStatusPresent %}
+                <p>Course Yellow: {% if courseStatus['YELLOW'].lower() == 'offen' %}<textGreen>{{courseStatus['YELLOW']}}</textGreen> {% else %} <textRed>{{courseStatus['YELLOW']}}</textRed> {% endif %}
+                    - Course Blue:{% if courseStatus['BLUE'].lower() == 'offen' %}<textGreen>{{courseStatus['BLUE']}}</textGreen> {% else %} <textRed>{{courseStatus['BLUE']}}</textRed> {% endif %}
+                    - Course Red: {% if courseStatus['RED'].lower() == 'offen' %}<textGreen>{{courseStatus['RED']}}</textGreen> {% else %} <textRed>{{courseStatus['RED']}}</textRed> {% endif %}
+            {% endif %}
             {% if courseLayoutPresent %}
             <div class="w3-container">
                 <table style="width:100%">
