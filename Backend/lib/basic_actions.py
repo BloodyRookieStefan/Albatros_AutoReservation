@@ -14,8 +14,12 @@ class CBasicActions():
         pass
 
     def click_button(self, _type, _tag):
-        # Get button by class name and click
-        self.Driver.find_element(_type, _tag).click()
+        button = self.Driver.find_element(_type, _tag)
+        if button.isEnabled():
+            # Get button by class name and click
+            self.Driver.find_element(_type, _tag).click()
+        else:
+            raise Exception('Button {0} is disabled'.format(_tag))
 
     def refresh(self):
         self.Driver.refresh()

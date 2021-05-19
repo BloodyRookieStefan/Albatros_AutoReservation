@@ -4,77 +4,79 @@ import re
 from flask import Flask, render_template, request, redirect, url_for
 from .template_creator import CTemplateCreator
 from datetime import datetime, timedelta
+from GlobalLib.pipe import CPipe, PipeOperation
 
 Pipe = None
-CourseLayout = dict()
-CourseStatus = dict()
 
 app = Flask(__name__)
 
 tempCreator = CTemplateCreator()
 tempCreator.read_template()
 
+backendBooted = False
+readTimeoutInSec = 1
 
 def thread_init(conn):
     print('Frontend init...')
-    global Pipe
-    Pipe = conn
+    global Pipe, backendBooted
+    Pipe = CPipe(conn)
+    backendBooted = False
     app.run()
-
-
-def get_data():
-    global CourseLayout, CourseStatus
-    # Check if data is available
-    if Pipe.poll():
-        # Clear data
-        CourseLayout = dict()
-        CourseStatus = dict()
-        # Recive data
-        data = Pipe.recv()
-
-        CourseStatus = data[0]
-        CourseLayout = data[1]
+    #app.run('192.168.59.100')
 
 @app.route("/")
 def index():
-    # Check if booking is in progress
-    bookingInProgess = False
-    if os.path.exists(tempCreator.TargetFile):
-        bookingInProgess = True
+    global backendBooted
+    # Check if backend has booted
+    if not backendBooted:
+        operation, backendBooted = Pipe.get_data(timeout=readTimeoutInSec)
+        if operation == PipeOperation.InvalidOperation:
+            return redirect(url_for("failed", errordata='Backend not booted yet. Please try again in a couple of minutes...'))
+        elif operation == PipeOperation.BackendBooted:
+            backendBooted = True
 
-    # Get data
-    get_data()
+    # Get data => Send course layout request
+    Pipe.send_data(PipeOperation.Req_CourseLayout)
+    operation, courseLayout = Pipe.get_data(timeout=readTimeoutInSec)
+    # Get data => Send course status request
+    Pipe.send_data(PipeOperation.Req_CourseStatus)
+    operation, courseStatus = Pipe.get_data(timeout=readTimeoutInSec)
+    # Get data => Send course booking in progress
+    Pipe.send_data(PipeOperation.Req_ReqInProgress)
+    operation, bookingInProgess = Pipe.get_data(timeout=readTimeoutInSec)
+
 
     # Check if course layout is available
     courseLayoutPresent = True
-    if len(CourseLayout) == 0:
+    if len(courseLayout) == 0:
         courseLayoutPresent = False
 
     courseStatusPresent = True
-    if len(CourseStatus) == 0:
+    if len(courseStatus) == 0:
         courseStatusPresent = False
 
     return render_template("index.html", currentdateD=(datetime.now() + timedelta(days=3)).day, currentdateM=(datetime.now() + timedelta(days=3)).month, currentdateY=(datetime.now() + timedelta(days=3)).year,
                            username=tempCreator.Document['username'],
                            bookinginprogess=bookingInProgess,
                            courseLayoutPresent=courseLayoutPresent,
-                           courseLayout=CourseLayout,
+                           courseLayout=courseLayout,
                            courseStatusPresent=courseStatusPresent,
-                           courseStatus=CourseStatus)
+                           courseStatus=courseStatus)
 
 @app.route("/success")
 def success():
-    return render_template("response.html", errordata=None, cancel=False)
+    return render_template("response.html", errordata=None, button='success')
 
 @app.route("/cancel", methods=['POST'])
 def cancel():
-    if os.path.exists(tempCreator.TargetFile):
-        os.remove(tempCreator.TargetFile)
-    return render_template("response.html", errordata=None, cancel=True)
+    # Send new cancel request
+    Pipe.send_data(PipeOperation.Req_CancelReq)
+    operation, data = Pipe.get_data(timeout=readTimeoutInSec)
+    return render_template("response.html", errordata=None, button='cancel')
 
 @app.route("/failed/<errordata>")
 def failed(errordata):
-    return render_template("response.html", errordata=errordata, cancel=False)
+    return render_template("response.html", errordata=errordata, button='None')
 
 @app.route("/home", methods=['POST'])
 def home():
@@ -127,37 +129,20 @@ def response():
             partner['firstName'] = partnerList[i][1]
             partner['lastName'] = partnerList[i][0]
 
-    tempCreator.save_template()
+    # Send new request
+    Pipe.send_data(PipeOperation.Req_NewReq, tempCreator.Document)
+    operation, data = Pipe.get_data(timeout=readTimeoutInSec)
 
     return redirect(url_for("success"))
 
 def check_input(_type, _value):
-    if _type == 'DATE':
-        if re.search('^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{4}$', _value):
-            dateSplit = _value.split('.')
-            if int(dateSplit[0]) < 1 or int(dateSplit[0]) > 31:
-                print(1)
-                return False
-            if int(dateSplit[1]) < 1 or int(dateSplit[1]) > 12:
-                print(2)
-                return False
-            if int(dateSplit[2]) < datetime.now().year:
-                print(3)
-                return False
-            return True
-        else:
-            return False
-    elif _type == 'TIMEVALUE':
-        timeSplit = _value.split('.')
-        if re.search('^[0-9]{1,2}-[0-9]{1,2}$', _value):
-            return True
-        else:
-            return False
-    elif _type == 'DIGITONLY':
+    if _type == 'DIGITONLY':
         if re.search('^[0-9]+$', _value):
             return True
         else:
             return False
+    else:
+        raise Exception('Unkown check type', _type)
 
 def format_error_str(_item, _expected, _got):
     return "{0} had not the correct format - Expected: \"{1}\" - Got: \"{2}\"".format(_item, _expected, _got)

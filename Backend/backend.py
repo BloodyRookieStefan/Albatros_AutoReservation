@@ -16,53 +16,41 @@ import time
 import os
 
 from datetime import datetime, timedelta
+from GlobalLib.pipe import CPipe, PipeOperation
 
 class ExecutionController:
-
+    # Com pipe
     Pipe = None
-
+    # General vars
+    Booted = False
     ExecutionTime_Start = None
     ExecutionTime_Stop = None
     Browser = None
     InitialisationDone = False
-
+    # Parsed timeslots and weather forecast
     Timeslots = None
     WeatherForecast = None
-
+    # Course status and layout
     LastLayoutCheck = None
+    CourseStatus = dict()
+    CourseLayout = dict()
 
     def __init__(self):
         pass
 
     def main(self, conn):
         print('Backend init...')
-        self.Pipe = conn
-        indleTimeInSec = 1
+        self.Pipe = CPipe(conn)
+        indleTimeInSec = 0.1
         self.InitialisationDone = False
 
         Backend.lib.log('Entry - MAIN loop')
 
         # Endless loop
         while True:
-            # ----------------------------------------------
-            # Check if setting file exists
-            # ----------------------------------------------
-            if os.path.exists(Backend.lib.settings.FilePath) and Backend.lib.settings.Document is None:
-                Backend.lib.settings.read()
-                self.init_new_request()
-                print('')
-                Backend.lib.log('New execution order found. Will be executed at {}'.format(Backend.lib.settings.Document['executiontime_converted']))
-            else:
-                # File was removed
-                if not os.path.exists(Backend.lib.settings.FilePath) and Backend.lib.settings.Document is not None:
-                    Backend.lib.settings.Document = None
-                    Backend.lib.log('Existing execution order canceled')
-                # File has changed
-                if Backend.lib.settings.sizeHasChanged():
-                    Backend.lib.settings.read()
-                    self.init_new_request()
-                    print('')
-                    Backend.lib.log('Existing execution order changed. Will be executed at {}'.format(Backend.lib.settings.Document['executiontime_converted']))
+
+            self.pipe_handler()
+
             # ----------------------------------------------
             # Check if it is time to parse course layout
             # Check layout on startup or at 3 O'Clock in the morning
@@ -90,8 +78,8 @@ class ExecutionController:
                     Backend.lib.log('Initialisation done')
                     self.InitialisationDone = True
 
-                # Check if execution time is reached => Start 30 seconds early
-                if Backend.lib.settings.Document is not None and Backend.lib.settings.Document['executiontime_converted'] < datetime.now() + timedelta(senconds=30):
+                # Check if execution time is reached => Start 60 seconds early
+                if Backend.lib.settings.Document is not None and Backend.lib.settings.Document['executiontime_converted'] < datetime.now() + timedelta(seconds=60):
                     Backend.lib.log('New execution time reached at {}'.format(datetime.now()))
 
                     #self.run_course_booking()          # ----------------------------------- DISABLED
@@ -208,13 +196,6 @@ class ExecutionController:
         self.Browser.dispose()
 
     def endBookingSession(self):
-        Backend.lib.log('Remove setting file')
-        while os.path.exists(Backend.lib.settings.FilePath):
-            try:
-                os.remove(Backend.lib.settings.FilePath)
-            except:
-                pass
-
         Backend.lib.log('Execution done')
         # Execution done
         self.InitialisationDone = False
@@ -222,15 +203,14 @@ class ExecutionController:
 
     # region Start browser
     def start_browser_course_layout(self):
+        self.CourseStatus = dict()
+        self.CourseLayout = dict()
+
         self.Browser = Backend.lib.CBrowser(Backend.lib.BrowserType.Chrome, Backend.lib.settings)
         Backend.lib.log('Start browser COURSE STATUS update...')
-        courseStatus = self.Browser.start_browser_course_status()
+        self.CourseStatus = self.Browser.start_browser_course_status()
         Backend.lib.log('Start browser COURSE LAYOUT update...')
-        courseLayout = self.Browser.start_browser_course_layout()
-
-        # Send data
-        content = [{**courseStatus}, {**courseLayout}]
-        self.Pipe.send(content)
+        self.CourseLayout = self.Browser.start_browser_course_layout()
 
     def start_browser_weather_forecast(self):
         Backend.lib.log('Start browser WEATHER FORECAST update...')
@@ -243,6 +223,26 @@ class ExecutionController:
         return self.Browser.start_browser_course_booking()
     #endregion
 
-if __name__ == "__main__":
-    Instance = ExecutionController()
-    Instance.main(None)
+    def pipe_handler(self):
+        # Check if new request is available
+        if self.Pipe.new_data_available():
+            # Get data
+            operation, data = self.Pipe.get_data()
+            # Handle data
+            if operation == PipeOperation.Req_CourseLayout:
+                self.Pipe.send_data(PipeOperation.Resp_CourseLayout, self.CourseLayout)
+            elif operation == PipeOperation.Req_CourseStatus:
+                self.Pipe.send_data(PipeOperation.Resp_CourseStatus, self.CourseStatus)
+            elif operation == PipeOperation.Req_ReqInProgress:
+                self.Pipe.send_data(PipeOperation.Resp_ReqInProgress, 1 if Backend.lib.settings.Document is not None else 0)
+            elif operation == PipeOperation.Req_NewReq:
+                Backend.lib.settings.handle_new_data(data)
+                self.Pipe.send_data(PipeOperation.Resp_NewReq)
+            elif operation == PipeOperation.Req_CancelReq:
+                Backend.lib.settings.handle_new_data(None)
+                self.Pipe.send_data(PipeOperation.Resp_CancelReq)
+
+        # Send boot message once
+        if not self.Booted and self.LastLayoutCheck is not None:
+            self.Pipe.send_data(PipeOperation.BackendBooted)
+            self.Booted = True

@@ -13,11 +13,11 @@
         </style>
 	</head>
 	<body>
-        {% if errordata == None and not cancel %}
+        {% if errordata == None and button == 'success' %}
             <div class="w3-container w3-green">
                 <h1>Order successfully placed...</h1>
             </div>
-        {% elif errordata == None and cancel %}
+        {% elif errordata == None and button == 'cancel' %}
             <div class="w3-container w3-orange">
                 <h1>Current order canceled...</h1>
             </div>
@@ -29,8 +29,10 @@
                 <h3>{{errordata}}</h3>
             </div>
         {% endif %}
+    {% if button != 'None'  %}
     <form class="w3-container w3-light white" method="POST" action="/home">
         <button class="w3-button w3-block w3-section w3-blue w3-ripple w3-padding">Back</button>
     </form>
+    {% endif %}
 	</body>
 </html>

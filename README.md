@@ -101,12 +101,10 @@ Open `bootAlbatrosService.sh` with `sudo nano bootAlbatrosService.sh`
 Change the path to your files
 ```shell script
 #!/bin/sh
-xterm -e python3 /home/<path to your Albatros folder>/Backend/main.py &
-xterm -e python3 /home/<path to your Albatros folder>/Frontend/index.py &
+xterm -e python3 /home/ubuntu/AlbatrosReservation/main.py &
 ```
 Make it executable with `sudo chmod 777 bootAlbatrosService.sh`  
 After reboot frontend and backend should start automatically
 
 ## How to run manually
-Execute `Frontend/index.py` for frontend  
-Execute `Backend/main.py` for backend
+Execute `main.py`
