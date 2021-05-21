@@ -25,6 +25,22 @@ class CCourseBooking(CBasicActions):
         self.Driver.get(self.Settings.Document['weburl_booking'])
 
         self.login()
+
+        return self.navigate_to_timeslots()
+
+    def login(self):
+        log('Website login...')
+        # Set username
+        self.set_textbox(_type=By.ID, _tag='user', _sendKeys=self.Settings.Document['username'])
+        # Set pwd
+        self.set_textbox(_type=By.ID, _tag='password', _sendKeys=self.Settings.Document['password'])
+        # CLick login button
+        self.click_button(_type=By.CLASS_NAME ,_tag='button')
+
+        # Wait until iFrame "dynamic" is fully loaded
+        self.wait_until_tag_is_present(_type=By.ID, _tag='dynamic')
+
+    def navigate_to_timeslots(self):
         self.booktimes()
         self.set_date()
 
@@ -43,19 +59,9 @@ class CCourseBooking(CBasicActions):
 
         return self.parse_timeslots()
 
-    def login(self):
-        log('Website login...')
-        # Set username
-        self.set_textbox(_type=By.ID, _tag='user', _sendKeys=self.Settings.Document['username'])
-        # Set pwd
-        self.set_textbox(_type=By.ID, _tag='password', _sendKeys=self.Settings.Document['password'])
-        # CLick login button
-        self.click_button(_type=By.CLASS_NAME ,_tag='button')
-
-        # Wait until iFrame "dynamic" is fully loaded
-        self.wait_until_tag_is_present(_type=By.ID, _tag='dynamic')
-
     def booktimes(self):
+        # Default frame
+        self.switch_toDefaultFrame()
         # Press Startzeiten
         self.click_button(_type=By.ID, _tag='pr_res_calendar')
 
@@ -161,17 +167,19 @@ class CCourseBooking(CBasicActions):
 
     def send_reservation(self):
         log('Reservation send')
-        return
-        if not self.Settings.Document['developermode']:
-            # Make reservation
-            print('Reservation send')
-            click_button(_driver=self.Driver, _type=By.ID, _tag='btnNext')
-        else:
+        if self.Settings.Document['developermode']:
             log_warning('Developer mode active. No reservation send')
+        else:
+            # Make reservation
+            self.click_button(_driver=self.Driver, _type=By.ID, _tag='btnNext')
+            print('Reservation send')
 
     def logout(self):
-        self.switch_toDefaultFrame()
-        self.click_button(_type=By.ID, _tag='logout')
+        try:
+            self.switch_toDefaultFrame()
+            self.click_button(_type=By.ID, _tag='logout')
+        except:
+            pass
 
     ################################################################################## ACTIONS ##################################################################################
 
@@ -197,21 +205,15 @@ class CCourseBooking(CBasicActions):
         element = self.Driver.find_element(By.NAME, _tag)
         element.click()
 
-        # Get up to first entry
-        element.send_keys(Keys.UP)
-        element.send_keys(Keys.UP)
-        element.send_keys(Keys.UP)
-
         if _target == BookingMode.Eighteen:
             # Press key down
-            element.send_keys(Keys.DOWN)
+            element.send_keys("1")
         elif _target == BookingMode.Nine:
             # Press key down
-            element.send_keys(Keys.DOWN)
-            element.send_keys(Keys.DOWN)
-            element.send_keys(Keys.DOWN)
+            element.send_keys("9")
         else:
             raise ValueError('{} is an unknown course'.format(_target))
+
         element.send_keys(Keys.ENTER)
 
     def select_timeslot(self, _timeslotStr):

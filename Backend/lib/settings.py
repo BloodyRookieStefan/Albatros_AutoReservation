@@ -1,7 +1,6 @@
 '''
 #############################################################################################
 @brief Functions to control settings.yaml
-@param self.Size - Size document
 @param self.Document - Read document
 @param self.Workspace - Program environment Linux/Windows
 #############################################################################################
@@ -12,12 +11,13 @@ import os
 import sys
 
 from datetime import datetime, timedelta
-from .progEnums import *
+from Backend.lib.progEnums import *
+from GlobalLib.template_control import CTemplateCreator
 
 class CSettings:
 
-    Size = None
     Document = None
+    TemplateDocument = None
     Workspace = None
 
     def __init__(self):
@@ -27,6 +27,9 @@ class CSettings:
             self.Workspace = OperatingSystem.Linux
         else:
             raise ValueError('Unkown operating system: {0}'.format(sys.platform))
+
+        # Read template
+        self.TemplateDocument = CTemplateCreator().read_template()
 
     def handle_new_data(self, _data):
         self.Document = None

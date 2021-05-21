@@ -15,7 +15,7 @@ class CBasicActions():
 
     def click_button(self, _type, _tag):
         button = self.Driver.find_element(_type, _tag)
-        if button.isEnabled():
+        if button.is_enabled():
             # Get button by class name and click
             self.Driver.find_element(_type, _tag).click()
         else:

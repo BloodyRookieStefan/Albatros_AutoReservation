@@ -7,6 +7,7 @@
 '''
 
 from enum import Enum
+from datetime import datetime
 
 class PipeOperation(Enum):
     Req_CourseLayout = 0
@@ -28,50 +29,50 @@ class PipeOperation(Enum):
 class CPipe:
 
     Pipe = None
-    DebugMode = True
+    DebugMode = False
 
-    def __init__(self, conn):
+    def __init__(self, conn, debugMode):
         self.Pipe = conn
+        self.DebugMode = debugMode
 
     def get_data(self, timeout=None):
         data = None
-        if self.Pipe is not None:
-            if timeout == None:
+        if timeout is None:
+            data = self.Pipe.recv()
+        else:
+            if self.Pipe.poll(timeout):
                 data = self.Pipe.recv()
-            else:
-                if self.Pipe.poll(timeout):
-                    data = self.Pipe.recv()
 
-            if data is None:
-                return PipeOperation.InvalidOperation, dict()
-            elif len(data) != 2:
-                raise Exception('Data length corrupt')
+        if data is None:
+            return PipeOperation.InvalidOperation, dict()
+        elif len(data) != 2:
+            raise Exception('Data length corrupt')
 
-            operation = PipeOperation(data[0])
-            recvData = data[1]
+        operation = PipeOperation(data[0])
+        recvData = data[1]
 
-            if self.DebugMode:
-                print('Data recived: {0} - {1}'.format(operation, recvData))
+        if self.DebugMode:
+            print('Data recived: {0} - {1}'.format(operation, recvData))
 
         return operation, recvData
 
     def send_data(self, operation, data=dict()):
-        if self.Pipe is not None:
-            if self.DebugMode:
-                print('Send data: {0} - {1}'.format(operation, data))
-            self.Pipe.send([operation, data])
+        if self.DebugMode:
+            print('Send data: {0} - {1}'.format(operation, data))
+        self.Pipe.send([operation, data])
 
     def new_data_available(self, timeout=None):
-        if self.Pipe is not None:
-            if timeout is None:
-                if self.Pipe.poll():
-                    return True
-                else:
-                    return False
+        if timeout is None:
+            if self.Pipe.poll():
+                return True
             else:
-                if self.Pipe.poll(timeout):
-                    return True
-                else:
-                    return False
+                return False
         else:
-            return False
+            if self.Pipe.poll(timeout):
+                return True
+            else:
+                return False
+
+    def dump_recive_buffer(self):
+        if self.Pipe.poll():
+            data = self.Pipe.recv()

@@ -33,4 +33,5 @@ executespan       : 3                           # How many days before we can bo
 executetime       : 21-00                       # Booking time
 browser           : Chrome                      # Browser type. Currently Chrome only
 developermode     : 1                           # Dev mode
+fastbootmode      : 1                           # Only in combination with developermode = 1
 weburl_booking    : https://albatros.gc-sl.de/albport/index.jsp?language=de&sid=7549441721F84A3CB517BA19E42010D6

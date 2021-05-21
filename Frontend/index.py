@@ -1,50 +1,49 @@
-import os
 import re
 
 from flask import Flask, render_template, request, redirect, url_for
-from .template_creator import CTemplateCreator
+from GlobalLib.template_control import CTemplateCreator
 from datetime import datetime, timedelta
 from GlobalLib.pipe import CPipe, PipeOperation
 
+# Com pipe
 Pipe = None
-
+# General
+BackendBooted = False
+ReadTimeoutInSec = 1
+# Web app
 app = Flask(__name__)
 
-tempCreator = CTemplateCreator()
-tempCreator.read_template()
-
-backendBooted = False
-readTimeoutInSec = 1
+TemplateDocument = CTemplateCreator().read_template()
 
 def thread_init(conn):
-    print('Frontend init...')
-    global Pipe, backendBooted
-    Pipe = CPipe(conn)
-    backendBooted = False
+    print('Startup Frontend - Params: developmode={0}, fastbootmode={1}...'.format(TemplateDocument['developermode'], TemplateDocument['fastbootmode']))
+
+    global Pipe, BackendBooted
+    Pipe = CPipe(conn, TemplateDocument['developermode'])
+    BackendBooted = False
     app.run()
     #app.run('192.168.59.100')
 
 @app.route("/")
 def index():
-    global backendBooted
+    global BackendBooted
     # Check if backend has booted
-    if not backendBooted:
-        operation, backendBooted = Pipe.get_data(timeout=readTimeoutInSec)
+    if not BackendBooted:
+        operation, data = Pipe.get_data(timeout=ReadTimeoutInSec)
         if operation == PipeOperation.InvalidOperation:
             return redirect(url_for("failed", errordata='Backend not booted yet. Please try again in a couple of minutes...'))
         elif operation == PipeOperation.BackendBooted:
-            backendBooted = True
+            BackendBooted = True
 
     # Get data => Send course layout request
-    Pipe.send_data(PipeOperation.Req_CourseLayout)
-    operation, courseLayout = Pipe.get_data(timeout=readTimeoutInSec)
+    courseLayout = pipe_handler(commandSend=PipeOperation.Req_CourseLayout, expectedResp=PipeOperation.Resp_CourseLayout)
     # Get data => Send course status request
-    Pipe.send_data(PipeOperation.Req_CourseStatus)
-    operation, courseStatus = Pipe.get_data(timeout=readTimeoutInSec)
+    courseStatus = pipe_handler(commandSend=PipeOperation.Req_CourseStatus, expectedResp=PipeOperation.Resp_CourseStatus)
     # Get data => Send course booking in progress
-    Pipe.send_data(PipeOperation.Req_ReqInProgress)
-    operation, bookingInProgess = Pipe.get_data(timeout=readTimeoutInSec)
+    bookingInProgess = pipe_handler(commandSend=PipeOperation.Req_ReqInProgress, expectedResp=PipeOperation.Resp_ReqInProgress)
 
+    if courseLayout is None or courseStatus is None or bookingInProgess is None:
+        return redirect(url_for("failed", errordata='Backend seems to be busy. Please try again in a couple of minutes...'))
 
     # Check if course layout is available
     courseLayoutPresent = True
@@ -56,7 +55,7 @@ def index():
         courseStatusPresent = False
 
     return render_template("index.html", currentdateD=(datetime.now() + timedelta(days=3)).day, currentdateM=(datetime.now() + timedelta(days=3)).month, currentdateY=(datetime.now() + timedelta(days=3)).year,
-                           username=tempCreator.Document['username'],
+                           username=TemplateDocument['username'],
                            bookinginprogess=bookingInProgess,
                            courseLayoutPresent=courseLayoutPresent,
                            courseLayout=courseLayout,
@@ -71,7 +70,7 @@ def success():
 def cancel():
     # Send new cancel request
     Pipe.send_data(PipeOperation.Req_CancelReq)
-    operation, data = Pipe.get_data(timeout=readTimeoutInSec)
+    operation, data = Pipe.get_data(timeout=ReadTimeoutInSec)
     return render_template("response.html", errordata=None, button='cancel')
 
 @app.route("/failed/<errordata>")
@@ -100,28 +99,19 @@ def response():
 
         partnerList.append((lastName, firstName))
 
-    # Validate input data
-    if useWeatherData is not None:
-        if not check_input(_type='DIGITONLY', _value=minTemp):
-            return redirect(url_for("failed", errordata=format_error_str("MINIMUM TEMPERATURE", "digit only", minTemp)))
-        if not check_input(_type='DIGITONLY', _value=maxRain):
-            return redirect(url_for("failed", errordata=format_error_str("MAXIMUM RAIN CHANCE", "digit only", maxRain)))
-        if not check_input(_type='DIGITONLY', _value=maxWind):
-            return redirect(url_for("failed", errordata=format_error_str("MAXIMUM WIND SPEED", "digit only", maxWind)))
-
     # Replace data
-    tempCreator.Document['date'] = date
-    tempCreator.Document['courseBooking'] = int(layout)
-    round = tempCreator.Document['round'][0]
+    TemplateDocument['date'] = date
+    TemplateDocument['courseBooking'] = int(layout)
+    round = TemplateDocument['round'][0]
     round['start_timeslot'] = timespanStart
     round['end_timeslot'] = timespanEnd
     if useWeatherData is not None:
-        tempCreator.Document['use_nice_weather_golfer'] = 1
-        tempCreator.Document['minTemp_deg'] = int(minTemp)
-        tempCreator.Document['maxRainChange_perc'] = int(maxRain)
-        tempCreator.Document['maxWind_km/h'] = int(maxWind)
+        TemplateDocument['use_nice_weather_golfer'] = 1
+        TemplateDocument['minTemp_deg'] = int(minTemp)
+        TemplateDocument['maxRainChange_perc'] = int(maxRain)
+        TemplateDocument['maxWind_km/h'] = int(maxWind)
     else:
-        tempCreator.Document['use_nice_weather_golfer'] = 0
+        TemplateDocument['use_nice_weather_golfer'] = 0
 
     for i in range(0, 3):
         if partnerList[i][0] != '' and partnerList[i][1] != '':
@@ -130,21 +120,18 @@ def response():
             partner['lastName'] = partnerList[i][0]
 
     # Send new request
-    Pipe.send_data(PipeOperation.Req_NewReq, tempCreator.Document)
-    operation, data = Pipe.get_data(timeout=readTimeoutInSec)
+    pipe_handler(commandSend=PipeOperation.Req_NewReq, expectedResp=PipeOperation.Resp_NewReq, data=TemplateDocument)
 
     return redirect(url_for("success"))
+# ----------------------------------------------------------------------------------------
+def pipe_handler(commandSend, expectedResp, data=dict()):
+    # Send command
+    Pipe.send_data(commandSend, data)
+    # Wait for response
+    operation, data = Pipe.get_data(timeout=ReadTimeoutInSec)
 
-def check_input(_type, _value):
-    if _type == 'DIGITONLY':
-        if re.search('^[0-9]+$', _value):
-            return True
-        else:
-            return False
-    else:
-        raise Exception('Unkown check type', _type)
-
-def format_error_str(_item, _expected, _got):
-    return "{0} had not the correct format - Expected: \"{1}\" - Got: \"{2}\"".format(_item, _expected, _got)
+    if operation != expectedResp:
+        return None
+    return data
 
 

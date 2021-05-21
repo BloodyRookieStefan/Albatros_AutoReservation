@@ -181,7 +181,7 @@
             <p>Start timespan</p>
             <p>
             <select name="startH" id="startH">
-                 {% for i in range(6, 21) %}
+                 {% for i in range(6, 22) %}
                     <option value="{{i}}"{% if i == 9 %} selected {% endif %}>{% if i < 10 %}0{% endif %}{{i}}</option>
                  {% endfor %}
             </select> :
@@ -195,7 +195,7 @@
             <p>End timespan</p>
             <p>
             <select name="endH" id="endH">
-                 {% for i in range(6, 21) %}
+                 {% for i in range(6, 22) %}
                     <option value="{{i}}"{% if i == 12 %} selected {% endif %}>{% if i < 10 %}0{% endif %}{{i}}</option>
                  {% endfor %}
             </select> :
@@ -211,12 +211,27 @@
             <p>
             <input class="w3-check" type="checkbox" name="useWeatherData">
             <label>Use weather data</label></p>
-            <label>Minimum temperature [°C]</label>
-            <input class="w3-input w3-animate-input" type="text" style="width:135px" name="minTemp" value="10"><br>
-            <label>Maximum rain chance [%]</label>
-            <input class="w3-input w3-animate-input" type="text" style="width:135px" name="maxRain" value="70"><br>
-            <label>Maximum wind speed [km/h]</label>
-            <input class="w3-input w3-animate-input" type="text" style="width:135px" name="maxWind" value="50"><br>
+            <p>Minimum temperature [°C]</p>
+            <p>
+            <select name="minTemp" id="minTemp">
+                 {% for i in range(0, 31) %}
+                    <option value="{{i}}"{% if i == 20 %} selected {% endif %}>{{i}}</option>
+                 {% endfor %}
+            </select>
+            <p>Maximum rain chance [%]</p>
+            <p>
+            <select name="maxRain" id="maxRain">
+                 {% for i in range(0, 105, 5) %}
+                    <option value="{{i}}"{% if i == 0 %} selected {% endif %}>{{i}}</option>
+                 {% endfor %}
+            </select>
+            <p>Maximum wind speed [km/h]</p>
+            <p>
+            <select name="maxWind" id="maxWind">
+                 {% for i in range(0, 105, 5) %}
+                    <option value="{{i}}"{% if i == 30 %} selected {% endif %}>{{i}}</option>
+                 {% endfor %}
+            </select>
         <!-- =========================
                  Partners
         ========================== -->
