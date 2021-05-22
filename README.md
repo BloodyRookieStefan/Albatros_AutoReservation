@@ -1,6 +1,6 @@
 # Albatros AutoReservation
 ## Description
-Auto booking for Albatrosservice [www.albatros.gc-sl.de/albport](https://albatros.gc-sl.de/albport/index.jsp?language=de&sid=7549441721F84A3CB517BA19E42010D6)
+Auto booking for Albatrosservice Liebenstein [www.albatros.gc-sl.de/albport](https://albatros.gc-sl.de/albport/index.jsp?language=de&sid=7549441721F84A3CB517BA19E42010D6)
 ## Requirements
 * Python 3.7 [www.python.org](https://www.python.org/)
 * Selenium package
@@ -15,7 +15,7 @@ Auto booking for Albatrosservice [www.albatros.gc-sl.de/albport](https://albatro
 * Install Chrome webbrowser `sudo apt install chromium-browser`
 * Install Chromium driver `sudo apt-get install chromium-chromedriver`
 ## Basic configuration
-`Frontend/templates/template.yaml`
+`/template.yaml`
 ```yaml
 #---------------------------------------------
 # Albatros login
@@ -52,6 +52,7 @@ executespan       : 3                           # How many days before we can bo
 executetime       : 21-00                       # Booking time
 browser           : Chrome                      # Browser type. Currently Chrome only
 developermode     : 0                           # Dev mode
+fastbootmode      : 0                           # Only in combination with developermode = 1
 weburl_booking    : https://albatros.gc-sl.de/albport/index.jsp?language=de&sid=7549441721F84A3CB517BA19E42010D6
 ```
 `username` Your Albatros user name  
@@ -61,14 +62,20 @@ weburl_booking    : https://albatros.gc-sl.de/albport/index.jsp?language=de&sid=
 `executetime` At which time is the next day activated  
 `browser` Browser type  
 `developermode` If **1** booking will not be send  
+`fastbootmode` Backend boots faster and skips "course status", "course layout" check  
 `weburl` Albatros URL
 
 ### Change IP adress for frontend
 `Frontend/index.py`
 ```python
-if __name__ == "__main__":
-    #app.run()
-    app.run("192.168.59.100")
+def thread_init(conn):
+    print('Startup Frontend - Params: developmode={0}, fastbootmode={1}...'.format(TemplateDocument['developermode'], TemplateDocument['fastbootmode']))
+
+    global Pipe, BackendBooted
+    Pipe = CPipe(conn, TemplateDocument['developermode'])
+    BackendBooted = False
+    app.run()
+    #app.run('192.168.59.100')
 ```
 Following will run frontend on `127.0.0.1`
 ```python
@@ -83,6 +90,12 @@ app.run("192.168.59.100")
 You might need to open it on your Raspberry PI 4
 
 ## Configure auto login & start
+### Set HDMI to active even if no monitor is detected
+* Open your `/boot/boot.txt` on your Ubuntu installation (Hint: If you using an SD Card, plugg it in your PC card reader to access boot.txt)
+* Add following lines to activate HDMI anytime:  
+`hdmi_force_hotplug=1`  
+`hdmi_drive=2`
+* Reboot your Raspberry
 ### Auto login
 1.) Open the Activities overview and start typing Users  
 2.) Click Users to open the panel  

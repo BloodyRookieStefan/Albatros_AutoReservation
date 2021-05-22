@@ -1,6 +1,8 @@
 '''
 #############################################################################################
-@brief Main file
+@brief Main file for backend
+@param self.Pipe - Communication pipe
+@param self.Booted - Backend fully initialized
 @param self.ExecutionTime_Start - datetime when execution is started
 @param self.ExecutionTime_Stop - datetime when execution is stopped
 @param self.Browser - Browser object
@@ -8,6 +10,8 @@
 @param self.Timeslots - Parsed timeslots
 @param self.WeatherForecast - Parsed weather forecase
 @param self.LastLayoutCheck - datetime of last course layout check
+@param self.CourseStatus - Dict of last Course Status
+@param self.CourseLayout - Dict of last Course Layout
 #############################################################################################
 '''
 

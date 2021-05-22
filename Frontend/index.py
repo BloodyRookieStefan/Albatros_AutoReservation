@@ -1,4 +1,12 @@
-import re
+'''
+#############################################################################################
+@brief Main file to control webpage
+@param Pipe - Python PIPE for communication
+@param BackendBooted - Flag if backend is booted
+@param ReadTimeoutInSec - Time within we expect an response from backend
+@param TemplateDocument - Read template dict
+#############################################################################################
+'''
 
 from flask import Flask, render_template, request, redirect, url_for
 from GlobalLib.template_control import CTemplateCreator
