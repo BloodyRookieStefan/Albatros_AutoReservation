@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<!--
+	Indus by TEMPLATE STOCK
+	templatestock.co @templatestock
+	Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
+-->
+
+<html lang="en" class="no-js">
+	<head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"> 
+        <title>Albatros Auto Reservation</title>
+
+        <link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css" />
+        <link rel="stylesheet" type="text/css" href="static/css/et-lineicon.css" />
+        <link rel="stylesheet" type="text/css" href="static/css/font-awesome.min.css" />
+        <link rel="stylesheet" type="text/css" href="static/css/style.css" />
+        <link href='http://fonts.googleapis.com/css?family=Roboto:400,500,400italic,500italic,700' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <!--[if IE]>
+        	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+	</head>
+    <style>
+        textGreen { color: green;
+                    text-decoration: underline;}
+        textRed { color: red;
+                  text-decoration: underline;}
+    </style>
+	<body>
+
+        <!-- Preloader -->
+        <div class="animationload">
+            <div class="loader">
+                Loading...
+            </div>
+        </div> 
+        <!-- End Preloader -->
+
+        <!-- =========================
+                 HOME
+        ========================== -->
+
+		<section id="home">
+			<div class="content">
+                <div id="large-header" class="large-header">
+                    <canvas id="demo-canvas"></canvas>
+                    <div id="countdown_dashboard" class="home-main container">
+                        <div class="row">
+                            <div class="logo">
+                                <img src="static/images/logo.png" alt="logo">
+                                <p>Time till next day activation</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <!-- DAYS -->
+                            <div class="col-md-3 col-sm-3 col-xs-6 dash-glob" data-scroll-reveal="enter bottom move 25px, after 0.3s">
+                                <div class="dash days_dash">
+                                    <div class="digit">0</div>
+                                    <div class="digit">0</div>
+                                    <span class="dash_title">Days</span>
+                                </div>
+                            </div>
+                            <!-- HOURS -->
+                            <div class="col-md-3 col-sm-3 col-xs-6 dash-glob" data-scroll-reveal="enter bottom move 25px, after 0.3s">
+                                <div class="dash hours_dash">
+                                    <div class="digit">0</div>
+                                    <div class="digit">0</div>
+                                    <span class="dash_title">Hours</span>
+                                </div>
+                            </div>
+                            <!-- MINUTES -->
+                            <div class="col-md-3 col-sm-3 col-xs-6 dash-glob" data-scroll-reveal="enter bottom move 25px, after 0.3s">
+                                <div class="dash minutes_dash">
+                                    <div class="digit">0</div>
+                                    <div class="digit">0</div>
+                                    <span class="dash_title">Minutes</span>
+                                </div>
+                            </div>
+                            <!-- SECONDS -->
+                            <div class="col-md-3 col-sm-3 col-xs-6 dash-glob" data-scroll-reveal="enter bottom move 25px, after 0.3s">
+                                <div class="dash seconds_dash">
+                                    <div class="digit">0</div>
+                                    <div class="digit">0</div>
+                                    <span class="dash_title">Seconds</span>
+                                </div>
+                            </div>
+                        </div> <!-- END ROW -->
+                    </div> <!-- END COUNTDOWN -->
+                </div> <!-- LARGE HEADER -->
+            </div> <!-- END CONTENT -->
+        </section>
+
+        <div class="w3-container w3-green">
+            <h2>New course booking for {{username}}</h2>
+        </div>
+        {% if bookinginprogess %}
+        <form class="w3-container w3-cyan" method="POST" action="/cancel">
+        <div class="w3-container w3-cyan">
+          <h5>There is currently a booking in progress...</h5>
+        </div>
+          <button class="w3-button w3-block w3-section w3-red w3-ripple w3-padding">Cancel booking</button>
+        </form>
+        {% endif %}
+
+        <form class="w3-container w3-light white" method="POST" action="/response">
+        <!-- =========================
+                 Course layout
+        ========================== -->
+            <h4>Course layout</h4>
+            <hr style="height:2px;border-width:0;color:gray;background-color:gray">
+            {% if courseStatusPresent %}
+                <p>Course Yellow: {% if courseStatus['YELLOW'].lower() == 'offen' %}<textGreen>{{courseStatus['YELLOW']}}</textGreen> {% else %} <textRed>{{courseStatus['YELLOW']}}</textRed> {% endif %}
+                    - Course Blue:{% if courseStatus['BLUE'].lower() == 'offen' %}<textGreen>{{courseStatus['BLUE']}}</textGreen> {% else %} <textRed>{{courseStatus['BLUE']}}</textRed> {% endif %}
+                    - Course Red: {% if courseStatus['RED'].lower() == 'offen' %}<textGreen>{{courseStatus['RED']}}</textGreen> {% else %} <textRed>{{courseStatus['RED']}}</textRed> {% endif %}
+            {% endif %}
+            {% if courseLayoutPresent %}
+            <div class="w3-container">
+                <table style="width:100%">
+                  <tr>
+                    <th>Day</th>
+                    <th>Date</th>
+                    <th>18 Course</th>
+                    <th>9 Course</th>
+                    <th>PIN position</th>
+                    <th>Comment</th>
+                  </tr>
+                  {% for i in courseLayout %}
+                  <tr>
+                    {% if courseLayout[i].day == 'Sonntag' or courseLayout[i].day == 'Samstag' %}
+                        <td><b>{{courseLayout[i].day}}</b></td>
+                        <td><b>{{courseLayout[i].date}}</b></td>
+                        <td><b>{{courseLayout[i].course18}}</b></td>
+                        <td><b>{{courseLayout[i].course9}}</b></td>
+                        <td><b>{{courseLayout[i].pinpos}}</b></td>
+                    {% else %}
+                        <td>{{courseLayout[i].day}}</td>
+                        <td>{{courseLayout[i].date}}</td>
+                        <td>{{courseLayout[i].course18}}</td>
+                        <td>{{courseLayout[i].course9}}</td>
+                        <td>{{courseLayout[i].pinpos}}</td>
+                    {% endif %}
+                    <td>{{courseLayout[i].comment}}</td>
+                  </tr>
+                  {% endfor %}
+                </table>
+            </div>
+            <hr>
+            {% endif %}
+            <input class="w3-radio" type="radio" name="courseLayout" value="9" checked>
+            <label>9</label></p>
+            <p>
+            <input class="w3-radio" type="radio" name="courseLayout" value="18">
+            <label>18</label></p>
+            <hr>
+        <!-- =========================
+                 Inputs
+        ========================== -->
+            <h4>Date & Time</h4>
+            <hr style="height:2px;border-width:0;color:gray;background-color:gray">
+            <p>Date</p>
+            <p>
+            <select name="dateD" id="dateD">
+                 {% for i in range(1, 31) %}
+                     <option value="{{i}}"{% if i == currentdateD %} selected {% endif %}>{% if i < 10 %}0{% endif %}{{i}}</option>
+                 {% endfor %}
+            </select> .
+            <select name="dateM" id="dateM">
+                 {% for i in range(1, 13) %}
+                     <option value="{{i}}"{% if i == currentdateM %} selected {% endif %}>{% if i < 10 %}0{% endif %}{{i}}</option>
+                 {% endfor %}
+            </select> .
+            <select name="dateY" id="dateY">
+                 {% for i in range(currentdateY, currentdateY + 2) %}
+                    <option value="{{i}}"{% if i == currentdateY %} selected {% endif %}>{{i}}</option>
+                 {% endfor %}
+            </select>
+            </p>
+            <hr>
+            <p>Start timespan</p>
+            <p>
+            <select name="startH" id="startH">
+                 {% for i in range(6, 22) %}
+                    <option value="{{i}}"{% if i == 9 %} selected {% endif %}>{% if i < 10 %}0{% endif %}{{i}}</option>
+                 {% endfor %}
+            </select> :
+            <select name="startM" id="startM">
+                 {% for i in range(0, 60) %}
+                    <option value="{{i}}"{% if i == 0 %} selected {% endif %}>{% if i < 10 %}0{% endif %}{{i}}</option>
+                 {% endfor %}
+            </select>
+            </p>
+            <hr>
+            <p>End timespan</p>
+            <p>
+            <select name="endH" id="endH">
+                 {% for i in range(6, 22) %}
+                    <option value="{{i}}"{% if i == 12 %} selected {% endif %}>{% if i < 10 %}0{% endif %}{{i}}</option>
+                 {% endfor %}
+            </select> :
+            <select name="endM" id="endM">
+                 {% for i in range(0, 60) %}
+                    <option value="{{i}}"{% if i == 0 %} selected {% endif %}>{% if i < 10 %}0{% endif %}{{i}}</option>
+                 {% endfor %}
+            </select>
+            </p>
+            <hr>
+            <h4>Wheater data</h4>
+            <hr style="height:2px;border-width:0;color:gray;background-color:gray">
+            <p>
+            <input class="w3-check" type="checkbox" name="useWeatherData">
+            <label>Use weather data</label></p>
+            <p>Minimum temperature [°C]</p>
+            <p>
+            <select name="minTemp" id="minTemp">
+                 {% for i in range(0, 31) %}
+                    <option value="{{i}}"{% if i == 20 %} selected {% endif %}>{{i}}</option>
+                 {% endfor %}
+            </select>
+            <p>Maximum rain chance [%]</p>
+            <p>
+            <select name="maxRain" id="maxRain">
+                 {% for i in range(0, 105, 5) %}
+                    <option value="{{i}}"{% if i == 0 %} selected {% endif %}>{{i}}</option>
+                 {% endfor %}
+            </select>
+            <p>Maximum wind speed [km/h]</p>
+            <p>
+            <select name="maxWind" id="maxWind">
+                 {% for i in range(0, 105, 5) %}
+                    <option value="{{i}}"{% if i == 30 %} selected {% endif %}>{{i}}</option>
+                 {% endfor %}
+            </select>
+        <!-- =========================
+                 Partners
+        ========================== -->
+          <h4>Partner selection</h4>
+          <hr style="height:2px;border-width:0;color:gray;background-color:gray">
+          {% for i in range(1, 4) %}
+                <hr>
+                <div class="w3-row w3-section">
+                  <div class="w3-col" style="width:50px"><i class="w3-xxlarge fa fa-user"></i></div>
+                    <div class="w3-rest">
+                      <input class="w3-input w3-border" type="text" name="firstName{{i}}" placeholder="{{i}}.) First Name">
+                    </div>
+                </div>
+                <div class="w3-row w3-section">
+                  <div class="w3-col" style="width:50px"><i class="w3-xxlarge fa fa-user"></i></div>
+                    <div class="w3-rest">
+                      <input class="w3-input w3-border" type="text" name="lastName{{i}}" placeholder="{{i}}.) Last Name">
+                    </div>
+                </div>
+          {% endfor %}
+          <button class="w3-button w3-block w3-section w3-blue w3-ripple w3-padding">Reservation</button>
+        </form>
+
+        <!-- JAVASCRIPTS -->
+        <script src="static/js/jquery.min.js"></script>
+        <script src="static/js/jquery.lwtCountdown-1.0.js"></script>
+        <script src="static/js/jquery.stellar.min.js"></script>
+        <script src="static/js/jquery.nicescroll.min.js"></script>
+        <script src="static/js/animated.js"></script>
+        <script src="static/js/main.js"></script>
+	</body>
+</html>

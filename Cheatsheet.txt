@@ -1,0 +1,2 @@
+Mount network drive
+sudo mount -t cifs -o username=stefan //192.168.59.25/Albatros_AutoReservation/ /home/ubuntu/Albatros_AutoReservation/

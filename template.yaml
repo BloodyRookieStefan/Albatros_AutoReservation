@@ -1,0 +1,37 @@
+#---------------------------------------------
+# Albatros login
+username      : None                            # Albatros username
+password      : None                            # Albatros password
+#---------------------------------------------
+# Booking
+date            : None                          # Will be filled from template
+courseBooking   : None                          # Will be filled from template
+round:
+  - start_timeslot: None                        # Will be filled from template
+    end_timeslot  : None                        # Will be filled from template
+    partner0:
+      - firstName : None                        # Will be filled from template
+        lastName  : None                        # Will be filled from template
+    partner1:
+      - firstName : None                        # Will be filled from template
+        lastName  : None                        # Will be filled from template
+    partner2:
+      - firstName : None                        # Will be filled from template
+        lastName  : None                        # Will be filled from template
+    partner3:
+      - firstName : None                        # Will be filled from template
+        lastName  : None                        # Will be filled from template
+#---------------------------------------------
+# Weather data
+use_nice_weather_golfer : None                  # Will be filled from template
+minTemp_deg             : None                  # Will be filled from template
+maxRainChange_perc      : None                  # Will be filled from template
+maxWind_km/h            : None                  # Will be filled from template
+#---------------------------------------------
+# General settings
+executespan       : 3                           # How many days before we can book in Albatros
+executetime       : 21-00                       # Booking time
+browser           : Chrome                      # Browser type. Currently Chrome only
+developermode     : 1                           # Dev mode
+fastbootmode      : 1                           # Only in combination with developermode = 1
+weburl_booking    : https://albatros.gc-sl.de/albport/index.jsp?language=de&sid=7549441721F84A3CB517BA19E42010D6
