@@ -51,9 +51,11 @@ maxWind_km/h            : None                  # Will be filled from template
 executespan       : 3                           # How many days before we can book in Albatros
 executetime       : 21-00                       # Booking time
 browser           : Chrome                      # Browser type. Currently Chrome only
-developermode     : 0                           # Dev mode
-fastbootmode      : 0                           # Only in combination with developermode = 1
 weburl_booking    : https://albatros.gc-sl.de/albport/index.jsp?language=de&sid=7549441721F84A3CB517BA19E42010D6
+# Develop
+developermode     : 0                           # Dev mode
+debugmessages     : 0                           # Print debug messages
+fastbootmode      : 0                           # Only in combination with developermode = 1
 ```
 `username` Your Albatros user name  
 `password` Your Albatros user password

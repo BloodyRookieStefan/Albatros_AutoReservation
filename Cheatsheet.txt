@@ -1,2 +1,13 @@
 Mount network drive
 sudo mount -t cifs -o username=stefan //192.168.59.25/Albatros_AutoReservation/ /home/ubuntu/Albatros_AutoReservation/
+
+Copy
+sudo cp -r /home/ubuntu/Albatros_AutoReservation/Backend /home/ubuntu/AlbatrosReservation/Backend
+sudo cp -r /home/ubuntu/Albatros_AutoReservation/Frontend /home/ubuntu/AlbatrosReservation/Frontend
+sudo cp -r /home/ubuntu/Albatros_AutoReservation/GlobalLib /home/ubuntu/AlbatrosReservation/GlobalLib
+sudo cp -r /home/ubuntu/Albatros_AutoReservation/main.py /home/ubuntu/AlbatrosReservation/main.py
+sudo cp -r /home/ubuntu/Albatros_AutoReservation/bootAlbatrosService.sh /home/ubuntu/AlbatrosReservation/bootAlbatrosService.sh
+sudo cp -r /home/ubuntu/Albatros_AutoReservation/Readme.md /home/ubuntu/AlbatrosReservation/Readme.md
+sudo cp -r /home/ubuntu/Albatros_AutoReservation/Cheatsheet.txt /home/ubuntu/AlbatrosReservation/Cheatsheet.txt
+sudo cp -r /home/ubuntu/Albatros_AutoReservation/template.yaml /home/ubuntu/AlbatrosReservation/template.yaml
+sudo cp -r /home/ubuntu/Albatros_AutoReservation/LICENSE /home/ubuntu/AlbatrosReservation/LICENSE

@@ -24,10 +24,10 @@ app = Flask(__name__)
 TemplateDocument = CTemplateCreator().read_template()
 
 def thread_init(conn):
-    print('Startup Frontend - Params: developmode={0}, fastbootmode={1}...'.format(TemplateDocument['developermode'], TemplateDocument['fastbootmode']))
+    print('Startup Frontend - Params: developmode={0}, fastbootmode={1}, debugmessages={2}...'.format(TemplateDocument['developermode'], TemplateDocument['fastbootmode'], TemplateDocument['debugmessages']))
 
     global Pipe, BackendBooted
-    Pipe = CPipe(conn, TemplateDocument['developermode'])
+    Pipe = CPipe(conn, TemplateDocument['debugmessages'])
     BackendBooted = False
     app.run()
     #app.run('192.168.59.100')
