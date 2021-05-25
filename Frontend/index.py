@@ -62,7 +62,8 @@ def index():
     if len(courseStatus) == 0:
         courseStatusPresent = False
 
-    return render_template("index.html", currentdateD=(datetime.now() + timedelta(days=3)).day, currentdateM=(datetime.now() + timedelta(days=3)).month, currentdateY=(datetime.now() + timedelta(days=3)).year,
+    return render_template("index.html", bookdateD=(datetime.now() + timedelta(days=TemplateDocument['executespan'])).day, bookdateM=(datetime.now() + timedelta(days=TemplateDocument['executespan'])).month, bookdateY=(datetime.now() + timedelta(days=TemplateDocument['executespan'])).year,
+                           currentdateD=str(datetime.now().day),
                            username=TemplateDocument['username'],
                            bookinginprogess=bookingInProgess,
                            courseLayoutPresent=courseLayoutPresent,

@@ -64,8 +64,7 @@ class ExecutionController:
                     pass
                 else:
                     self.run_course_layout()
-                    self.LastLayoutCheck = datetime.now()
-
+                self.LastLayoutCheck = datetime.now()
                 Backend.lib.log('Course Layout & Course Status list updated at {}'.format(self.LastLayoutCheck))
             # ----------------------------------------------
             # New execution in progress when we found a settings file

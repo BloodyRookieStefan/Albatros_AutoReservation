@@ -46,7 +46,7 @@ class CCourseLayout(CBasicActions):
             elif i == 5:
                 comment = entry.text
                 # Only if we could parse the information create entry
-                if course9 != '' and course18 != '':
+                if course9 != '' and course18 != '' and len(date.split('.')) == 3:
                     courseLayout[date] = CLayout(day, date, course18, course9, pinPos, comment)
                 i = -1
 

@@ -127,7 +127,11 @@
                     <th>Comment</th>
                   </tr>
                   {% for i in courseLayout %}
-                  <tr>
+                    {% if courseLayout[i].date.split('.')[0] == currentdateD %}
+                        <tr style="background-color:#76D7C4">
+                    {% else %}
+                        <tr>
+                    {% endif %}
                     {% if courseLayout[i].day == 'Sonntag' or courseLayout[i].day == 'Samstag' %}
                         <td><b>{{courseLayout[i].day}}</b></td>
                         <td><b>{{courseLayout[i].date}}</b></td>
@@ -163,17 +167,17 @@
             <p>
             <select name="dateD" id="dateD">
                  {% for i in range(1, 31) %}
-                     <option value="{{i}}"{% if i == currentdateD %} selected {% endif %}>{% if i < 10 %}0{% endif %}{{i}}</option>
+                     <option value="{{i}}"{% if i == bookdateD %} selected {% endif %}>{% if i < 10 %}0{% endif %}{{i}}</option>
                  {% endfor %}
             </select> .
             <select name="dateM" id="dateM">
                  {% for i in range(1, 13) %}
-                     <option value="{{i}}"{% if i == currentdateM %} selected {% endif %}>{% if i < 10 %}0{% endif %}{{i}}</option>
+                     <option value="{{i}}"{% if i == bookdateM %} selected {% endif %}>{% if i < 10 %}0{% endif %}{{i}}</option>
                  {% endfor %}
             </select> .
             <select name="dateY" id="dateY">
-                 {% for i in range(currentdateY, currentdateY + 2) %}
-                    <option value="{{i}}"{% if i == currentdateY %} selected {% endif %}>{{i}}</option>
+                 {% for i in range(bookdateY, bookdateY + 2) %}
+                    <option value="{{i}}"{% if i == bookdateY %} selected {% endif %}>{{i}}</option>
                  {% endfor %}
             </select>
             </p>

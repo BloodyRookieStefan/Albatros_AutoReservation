@@ -48,14 +48,25 @@ class CCourseBooking(CBasicActions):
         self.set_course(self.Settings.Document['courseBooking_enum'])
 
         # Refresh until available
+        i = 0
         available = False
         while not available:
             table = self.get_timeslotTable()
+            #DEBUG
+            if table is None:
+                print('Table content: ', 'NONE')
+            else:
+                print('Table content: ', table)
+            # ----------------
             if table is not None and len(table) > 0:
                 available = True
             else:
-                time.sleep(1)
                 self.Driver.refresh()
+                time.sleep(2)
+
+            i = i + 1
+            if i > 60:
+                raise Exception('Site refresh timeout')
 
         return self.parse_timeslots()
 
@@ -79,6 +90,7 @@ class CCourseBooking(CBasicActions):
     def parse_timeslots(self):
         timeslots = dict()
 
+        closedTimeslots = self.get_closedTimeslots()
         table = self.get_timeslotTable()
         if len(table) == 0:
             raise Exception('Could not parse timetable')
@@ -92,13 +104,20 @@ class CCourseBooking(CBasicActions):
                     btn_text_BEFORE = tableSplit[index - 1].strip()
                     if re.search("^[0-9]{1,2}:[0-9]{1,2}$", btn_text_BEFORE):
                         # Free
-                        timeslots[btn_text] = CTimeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _isFree=True)
+                        isFree = True
                     else:
                         # Not free
-                        timeslots[btn_text] = CTimeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _isFree=False)
+                        isFree = False
                 else:
                     #  First element free and it is free
+                    isFree = True
+
+                # Set free timeslot based on conditions
+                if isFree and btn_text not in closedTimeslots:
                     timeslots[btn_text] = CTimeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _isFree=True)
+                else:
+                    timeslots[btn_text] = CTimeslot(_timeVal=[btn_text, self.Settings.Document['date_converted']], _isFree=False)
+
             index += 1
 
         # Sort availible timeslots early -> old
@@ -232,6 +251,21 @@ class CCourseBooking(CBasicActions):
 
     def get_timeslotTable(self):
         return self.Driver.find_elements_by_xpath("//*[@id='gridarea']/table/tbody")
+
+    def get_closedTimeslots(self):
+        # Get by class
+        timeslotsClosed = self.Driver.find_elements(By.CLASS_NAME, "c-closed-txt")
+        listTimeslotsClosed = list()
+        # Run trough all and create dict
+        if timeslotsClosed is not None and len(timeslotsClosed) > 0:
+            for element in timeslotsClosed:
+                btn_text = element.text.strip()
+                if btn_text != '' and btn_text not in listTimeslotsClosed:
+                    log('Timeslot is closed: {0}'.format(element.text.replace('\n', '')))
+                    listTimeslotsClosed.append(btn_text)
+        # Return dict with start times which are closed
+        return listTimeslotsClosed
+
 
 '''
 #############################################################################################
