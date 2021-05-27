@@ -24,10 +24,10 @@ app = Flask(__name__)
 TemplateDocument = CTemplateCreator().read_template()
 
 def thread_init(conn):
-    print('Startup Frontend - Params: developmode={0}, fastbootmode={1}...'.format(TemplateDocument['developermode'], TemplateDocument['fastbootmode']))
+    print('Startup Frontend - Params: developmode={0}, fastbootmode={1}, debugmessages={2}...'.format(TemplateDocument['developermode'], TemplateDocument['fastbootmode'], TemplateDocument['debugmessages']))
 
     global Pipe, BackendBooted
-    Pipe = CPipe(conn, TemplateDocument['developermode'])
+    Pipe = CPipe(conn, TemplateDocument['debugmessages'])
     BackendBooted = False
     app.run()
     #app.run('192.168.59.100')
@@ -62,7 +62,8 @@ def index():
     if len(courseStatus) == 0:
         courseStatusPresent = False
 
-    return render_template("index.html", currentdateD=(datetime.now() + timedelta(days=3)).day, currentdateM=(datetime.now() + timedelta(days=3)).month, currentdateY=(datetime.now() + timedelta(days=3)).year,
+    return render_template("index.html", bookdateD=(datetime.now() + timedelta(days=TemplateDocument['executespan'])).day, bookdateM=(datetime.now() + timedelta(days=TemplateDocument['executespan'])).month, bookdateY=(datetime.now() + timedelta(days=TemplateDocument['executespan'])).year,
+                           currentdateD=str(datetime.now().day),
                            username=TemplateDocument['username'],
                            bookinginprogess=bookingInProgess,
                            courseLayoutPresent=courseLayoutPresent,

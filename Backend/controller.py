@@ -43,8 +43,8 @@ class ExecutionController:
         pass
 
     def main(self, conn):
-        print('Startup Backend - Params: developmode={0}, fastbootmode={0}...'.format(Backend.lib.settings.TemplateDocument['developermode'], Backend.lib.settings.TemplateDocument['fastbootmode']))
-        self.Pipe = CPipe(conn, Backend.lib.settings.TemplateDocument['developermode'])
+        print('Startup Frontend - Params: developmode={0}, fastbootmode={1}, debugmessages={2}...'.format(Backend.lib.settings.TemplateDocument['developermode'], Backend.lib.settings.TemplateDocument['fastbootmode'], Backend.lib.settings.TemplateDocument['debugmessages']))
+        self.Pipe = CPipe(conn, Backend.lib.settings.TemplateDocument['debugmessages'])
         indleTimeInSec = 0.1
         self.InitialisationDone = False
 
@@ -110,17 +110,43 @@ class ExecutionController:
             raise Exception('Unknown browser type', Backend.lib.settings.Document['browser'])
 
     def run_course_layout(self):
-        # Start browser
-        self.start_browser_course_layout()
-        self.Browser.dispose()
+        i = 0
+        maxTries = 5
+        success = False
+        while i < maxTries and not success:
+            try:
+                self.CourseStatus = None
+                self.CourseLayout = None
+                # Start browser
+                self.start_browser_course_layout()
+                success = True
+            except Exception as e:
+                Backend.lib.log_error('Could not run course layout: {0}'.format(str(e)))
+                self.CourseStatus = dict()
+                self.CourseLayout = dict()
+                i = i + 1
+                time.sleep(5)
+
+            self.Browser.dispose()
 
     def run_weather_forecast(self):
-        # Start browser
-        self.WeatherForecast = None
-        self.WeatherForecast = self.start_browser_weather_forecast()
-        self.Browser.dispose()
-        # Check if weather meets requirements
+        i = 0
+        maxTries = 3
+        success = False
+        while i < maxTries and not success:
+            try:
+                # Start browser
+                self.WeatherForecast = None
+                self.WeatherForecast = self.start_browser_weather_forecast()
+                success = True
+            except Exception as e:
+                Backend.lib.log_error('Could not run weather forecast: {0}'.format(str(e)))
+                self.WeatherForecast = dict()
+                i = i + 1
 
+            self.Browser.dispose()
+
+        # Check if weather meets requirements
         # Get weather in timslot range
         dayForeCast = None
         for date in self.WeatherForecast:
@@ -221,9 +247,6 @@ class ExecutionController:
 
     # region Start browser
     def start_browser_course_layout(self):
-        self.CourseStatus = dict()
-        self.CourseLayout = dict()
-
         self.Browser = Backend.lib.CBrowser(Backend.lib.BrowserType.Chrome, Backend.lib.settings)
         Backend.lib.log('Start browser COURSE STATUS update...')
         self.CourseStatus = self.Browser.start_browser_course_status()
