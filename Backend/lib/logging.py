@@ -4,6 +4,8 @@
 #############################################################################################
 '''
 
+import os
+
 from enum import Enum
 from datetime import datetime
 
@@ -12,7 +14,12 @@ class WarningLevel(Enum):
     Warning = 1
     Error = 2
 
+LogFile = '{}//Logs//backendLog.txt'.format(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+FirstLogging = True
+
 def logging(_type, _msg):
+    global FirstLogging
+
     if _type == WarningLevel.Info:
         preFix = 'INFO>'
     elif _type == WarningLevel.Warning:
@@ -20,7 +27,21 @@ def logging(_type, _msg):
     elif _type == WarningLevel.Error:
         preFix = 'ERROR>'
 
-    print('{0} {1} {2}'.format(datetime.now().strftime('%H.%M.%S.%f'), preFix, _msg))
+    logText = '{0} {1} {2}'.format(datetime.now().strftime('%H.%M.%S.%f'), preFix, _msg)
+
+    print(logText)
+
+    if FirstLogging:
+        if not os.path.exists(os.path.dirname(LogFile)):
+            os.mkdir(os.path.dirname(LogFile))
+        if os.path.exists(LogFile):
+            os.remove(LogFile)
+        FirstLogging = False
+
+    # Write in log file
+    f = open(LogFile, "a")
+    f.write(logText +"\n")
+    f.close()
 
 def log(_msg):
     logging(WarningLevel.Info, _msg)

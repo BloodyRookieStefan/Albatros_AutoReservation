@@ -48,25 +48,27 @@ class CCourseBooking(CBasicActions):
         self.set_course(self.Settings.Document['courseBooking_enum'])
 
         # Refresh until available
+        waitTime = 2
         i = 0
         available = False
         while not available:
             table = self.get_timeslotTable()
-            #DEBUG
-            if table is None:
-                print('Table content: ', 'NONE')
-            else:
-                print('Table content: ', table)
-            # ----------------
             if table is not None and len(table) > 0:
                 available = True
             else:
+                # Back to default frame
+                self.switch_toDefaultFrame()
+                # Driver refresh
                 self.Driver.refresh()
-                time.sleep(2)
+                time.sleep(waitTime)
+                # Select iFrame again
+                self.switch_to_frame(_type=By.ID, _tag='dynamic')
 
             i = i + 1
-            if i > 60:
-                raise Exception('Site refresh timeout')
+            # Refresh timeout after 2 mins
+            if i > 120 / waitTime:
+                log_error('Refresh timeout')
+                return dict()
 
         return self.parse_timeslots()
 

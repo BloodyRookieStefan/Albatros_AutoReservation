@@ -111,7 +111,7 @@ class ExecutionController:
 
     def run_course_layout(self):
         i = 0
-        maxTries = 3
+        maxTries = 5
         success = False
         while i < maxTries and not success:
             try:
@@ -125,6 +125,7 @@ class ExecutionController:
                 self.CourseStatus = dict()
                 self.CourseLayout = dict()
                 i = i + 1
+                time.sleep(5)
 
             self.Browser.dispose()
 
