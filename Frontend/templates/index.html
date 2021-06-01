@@ -127,7 +127,7 @@
                     <th>Comment</th>
                   </tr>
                   {% for i in courseLayout %}
-                    {% if courseLayout[i].date.split('.')[0] == currentdateD %}
+                    {% if courseLayout[i].date.split('.')[0] == currentdateD and courseLayout[i].date.split('.')[1] == currentdateM %}
                         <tr style="background-color:#76D7C4">
                     {% else %}
                         <tr>

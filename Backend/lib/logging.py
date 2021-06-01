@@ -27,7 +27,7 @@ def logging(_type, _msg):
     elif _type == WarningLevel.Error:
         preFix = 'ERROR>'
 
-    logText = '{0} {1} {2}'.format(datetime.now().strftime('%H.%M.%S.%f'), preFix, _msg)
+    logText = '{0}-{1} {2} {3}'.format(datetime.now().strftime('%d.%m.%Y'), datetime.now().strftime('%H:%M:%S.%f'), preFix, _msg)
 
     print(logText)
 
