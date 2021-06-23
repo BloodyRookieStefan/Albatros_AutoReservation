@@ -13,6 +13,8 @@ from GlobalLib.template_control import CTemplateCreator
 from datetime import datetime, timedelta
 from GlobalLib.pipe import CPipe, PipeOperation
 
+import logging
+
 # Com pipe
 Pipe = None
 # General
@@ -20,6 +22,9 @@ BackendBooted = False
 ReadTimeoutInSec = 1
 # Web app
 app = Flask(__name__)
+# Set logger only to error
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 TemplateDocument = CTemplateCreator().read_template()
 

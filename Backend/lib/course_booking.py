@@ -192,7 +192,7 @@ class CCourseBooking(CBasicActions):
             log_warning('Developer mode active. No reservation send')
         else:
             # Make reservation
-            self.click_button(_driver=self.Driver, _type=By.ID, _tag='btnNext')
+            self.click_button(_type=By.ID, _tag='btnNext')
             print('Reservation send')
 
     def logout(self):
