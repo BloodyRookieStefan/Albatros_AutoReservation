@@ -43,7 +43,7 @@ class ExecutionController:
         pass
 
     def main(self, conn):
-        print('Startup Frontend - Params: developmode={0}, fastbootmode={1}, debugmessages={2}...'.format(Backend.lib.settings.TemplateDocument['developermode'], Backend.lib.settings.TemplateDocument['fastbootmode'], Backend.lib.settings.TemplateDocument['debugmessages']))
+        print('Startup Backend - Params: developmode={0}, fastbootmode={1}, debugmessages={2}...'.format(Backend.lib.settings.TemplateDocument['developermode'], Backend.lib.settings.TemplateDocument['fastbootmode'], Backend.lib.settings.TemplateDocument['debugmessages']))
         self.Pipe = CPipe(conn, Backend.lib.settings.TemplateDocument['debugmessages'])
         indleTimeInSec = 0.1
         self.InitialisationDone = False
@@ -52,6 +52,7 @@ class ExecutionController:
 
         # Endless loop
         while True:
+            # Handle income messages
             self.pipe_handler()
 
             # ----------------------------------------------

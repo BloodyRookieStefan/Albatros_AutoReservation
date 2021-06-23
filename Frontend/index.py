@@ -13,6 +13,8 @@ from GlobalLib.template_control import CTemplateCreator
 from datetime import datetime, timedelta
 from GlobalLib.pipe import CPipe, PipeOperation
 
+import logging
+
 # Com pipe
 Pipe = None
 # General
@@ -20,6 +22,9 @@ BackendBooted = False
 ReadTimeoutInSec = 1
 # Web app
 app = Flask(__name__)
+# Set logger only to error
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 TemplateDocument = CTemplateCreator().read_template()
 
@@ -62,8 +67,18 @@ def index():
     if len(courseStatus) == 0:
         courseStatusPresent = False
 
+    # Get current date and month
+    currentDateD = str(datetime.now().day)
+    if datetime.now().day < 10:
+        currentDateD = "0" +str(datetime.now().day)
+
+    currentDateM = str(datetime.now().month)
+    if datetime.now().month < 10:
+        currentDateM = "0" +str(datetime.now().month)
+
     return render_template("index.html", bookdateD=(datetime.now() + timedelta(days=TemplateDocument['executespan'])).day, bookdateM=(datetime.now() + timedelta(days=TemplateDocument['executespan'])).month, bookdateY=(datetime.now() + timedelta(days=TemplateDocument['executespan'])).year,
-                           currentdateD=str(datetime.now().day),
+                           currentdateD=currentDateD,
+                           currentdateM=currentDateM,
                            username=TemplateDocument['username'],
                            bookinginprogess=bookingInProgess,
                            courseLayoutPresent=courseLayoutPresent,
