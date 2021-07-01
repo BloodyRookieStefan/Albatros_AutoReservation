@@ -6,6 +6,7 @@
 
 import os
 import yaml
+import re
 
 from .logging import log, log_warning, log_error
 from .basic_actions import CBasicActions
@@ -36,7 +37,11 @@ class CCourseLayout(CBasicActions):
             if i == 0:
                 day = entry.text
             elif i == 1:
-                date = entry.text
+                matchPattern = re.search("^[^0-9]*([0-9]{1,2}\.[0-9]{1,2}\.[0-9]{4}).*$", entry.text)
+                if matchPattern is not None:
+                    date = matchPattern.group(1)
+                else:
+                    date = None
             elif i == 2:
                  course18 = entry.text
             elif i == 3:
@@ -46,7 +51,7 @@ class CCourseLayout(CBasicActions):
             elif i == 5:
                 comment = entry.text
                 # Only if we could parse the information create entry
-                if course9 != '' and course18 != '' and len(date.split('.')) == 3:
+                if course9 != '' and course18 != '' and date is not None:
                     courseLayout[date] = CLayout(day, date, course18, course9, pinPos, comment)
                 i = -1
 
