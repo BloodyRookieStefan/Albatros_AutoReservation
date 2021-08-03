@@ -10,6 +10,7 @@ import re
 
 from .logging import log, log_warning, log_error
 from .basic_actions import CBasicActions
+from datetime import datetime
 from selenium.webdriver.common.by import By
 
 class CCourseLayout(CBasicActions):
@@ -20,7 +21,6 @@ class CCourseLayout(CBasicActions):
     def start_browser_course_layout(self):
         # Load website
         self.Driver.get('https://golfclubliebenstein.de/platzbenutzung')
-
         # Parse course layout
         return self.parse_course_layout()
 
@@ -53,14 +53,23 @@ class CCourseLayout(CBasicActions):
                 # Only if we could parse the information create entry
                 if course9 != '' and course18 != '' and date is not None:
                     courseLayout[date] = CLayout(day, date, course18, course9, pinPos, comment)
+                else:
+                    log_warning('Could not parse date. Storage condition not met')
                 i = -1
 
             i = i + 1
 
+        lastLayoutUpdate = datetime.now()
         # Create dict we can save without python objects
         target = dict()
         for date in courseLayout:
-            target[date] = {'date':date, 'day':courseLayout[date].Day, 'course18':courseLayout[date].Course18_Text, 'course9':courseLayout[date].Course9_Text, 'pinpos':courseLayout[date].PinPos, 'comment':courseLayout[date].Comment}
+            target[date] = {'date':date,
+                            'day':courseLayout[date].Day,
+                            'course18':courseLayout[date].Course18_Text,
+                            'course9':courseLayout[date].Course9_Text,
+                            'pinpos':courseLayout[date].PinPos,
+                            'comment':courseLayout[date].Comment,
+                            'timestamp':lastLayoutUpdate}
 
         return target
 
@@ -92,7 +101,10 @@ class CCourseLayout(CBasicActions):
             elif i > 5:
                 break
 
-            i = i +1
+            i = i + 1
+
+        # Set last course status update to now
+        courseStatus['timestamp'] = datetime.now()
 
         return courseStatus
 

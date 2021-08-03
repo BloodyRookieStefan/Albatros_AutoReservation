@@ -37,6 +37,20 @@ def thread_init(conn):
     app.run()
     #app.run('192.168.59.100')
 
+def get_formated_date(date):
+    # Day
+    dateD = str(date.day)
+    if date.day < 10:
+        dateD = "0" +str(date.day)
+    # Month
+    dateM = str(date.month)
+    if date.month < 10:
+        dateM = "0" +str(date.month)
+    # Year
+    dateY = str(date.year)
+
+    return dateD, dateM, dateY
+
 @app.route("/")
 def index():
     global BackendBooted
@@ -67,24 +81,24 @@ def index():
     if len(courseStatus) == 0:
         courseStatusPresent = False
 
-    # Get current date and month
-    currentDateD = str(datetime.now().day)
-    if datetime.now().day < 10:
-        currentDateD = "0" +str(datetime.now().day)
-
-    currentDateM = str(datetime.now().month)
-    if datetime.now().month < 10:
-        currentDateM = "0" +str(datetime.now().month)
+    # Get current date, month and year
+    currentDateD, currentDateM, currentDateY = get_formated_date(datetime.now())
+    # Get last update date, month and year
+    lastCourseUpdateD, lastCourseUpdateM, lastCourseUpdateY = get_formated_date(courseStatus['timestamp'] if courseStatusPresent else datetime.min)
 
     return render_template("index.html", bookdateD=(datetime.now() + timedelta(days=TemplateDocument['executespan'])).day, bookdateM=(datetime.now() + timedelta(days=TemplateDocument['executespan'])).month, bookdateY=(datetime.now() + timedelta(days=TemplateDocument['executespan'])).year,
-                           currentdateD=currentDateD,
-                           currentdateM=currentDateM,
+                           currentDateD=currentDateD,
+                           currentDateM=currentDateM,
+                           currentDateY=currentDateY,
                            username=TemplateDocument['username'],
                            bookinginprogess=bookingInProgess,
                            courseLayoutPresent=courseLayoutPresent,
                            courseLayout=courseLayout,
                            courseStatusPresent=courseStatusPresent,
-                           courseStatus=courseStatus)
+                           courseStatus=courseStatus,
+                           lastCourseUpdateD=lastCourseUpdateD,
+                           lastCourseUpdateM=lastCourseUpdateM,
+                           lastCourseUpdateY=lastCourseUpdateY)
 
 @app.route("/success")
 def success():
