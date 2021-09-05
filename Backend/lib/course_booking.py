@@ -47,7 +47,7 @@ class CCourseBooking(CBasicActions):
         # Set course type
         self.set_course(self.Settings.Document['courseBooking_enum'])
 
-        # Refresh until available
+        # Refresh until timeslots are available
         waitTime = 2
         i = 0
         available = False
@@ -122,13 +122,13 @@ class CCourseBooking(CBasicActions):
 
             index += 1
 
-        # Sort availible timeslots early -> old
+        # Sort available timeslots early -> old
         done = False
         tups = list(timeslots.items())
         while not done:
             indexChanged = False
             for i in range(0, len(tups)):
-                if i+ 1 < len(tups):
+                if i + 1 < len(tups):
                     hashLowerIndex = tups[i][1].Slot.hour * 100 + tups[i][1].Slot.minute
                     hashUpperIndex = tups[i + 1][1].Slot.hour * 100 + tups[i + 1][1].Slot.minute
                     if hashUpperIndex < hashLowerIndex:
@@ -187,13 +187,12 @@ class CCourseBooking(CBasicActions):
         return True
 
     def send_reservation(self):
-        log('Reservation send')
-        if self.Settings.Document['developermode']:
+        if self.Settings.TemplateDocument['developermode']:
             log_warning('Developer mode active. No reservation send')
         else:
             # Make reservation
             self.click_button(_type=By.ID, _tag='btnNext')
-            print('Reservation send')
+            log('Reservation send')
 
     def logout(self):
         try:

@@ -41,21 +41,17 @@ round:
       - firstName : None                        # Will be filled from template
         lastName  : None                        # Will be filled from template
 #---------------------------------------------
-# Weather data
-use_nice_weather_golfer : None                  # Will be filled from template
-minTemp_deg             : None                  # Will be filled from template
-maxRainChange_perc      : None                  # Will be filled from template
-maxWind_km/h            : None                  # Will be filled from template
-#---------------------------------------------
 # General settings
-executespan       : 3                           # How many days before we can book in Albatros
-executetime       : 21-00                       # Booking time
-browser           : Chrome                      # Browser type. Currently Chrome only
-weburl_booking    : https://albatros.gc-sl.de/albport/index.jsp?language=de&sid=7549441721F84A3CB517BA19E42010D6
+executespan         : 3                           # How many days before we can book in Albatros
+executetime         : 21-00                       # Booking time
+browser             : Chrome                      # Browser type. Currently Chrome only
+weburl_booking      : https://albatros.gc-sl.de/albport/index.jsp?language=de&sid=7549441721F84A3CB517BA19E42010D6
+weburl_crs_status   : https://www.golfclubliebenstein.de
+weburl_crs_layout   : https://www.golfclubliebenstein.de/platzbenutzung
 # Develop
-developermode     : 0                           # Dev mode
-debugmessages     : 0                           # Print debug messages
-fastbootmode      : 0                           # Only in combination with developermode = 1
+developermode       : 0                           # Dev mode
+debugmessages       : 0                           # Print debug messages
+fastbootmode        : 0                           # Only in combination with developermode = 1
 ```
 `username` Your Albatros user name  
 `password` Your Albatros user password
@@ -63,9 +59,14 @@ fastbootmode      : 0                           # Only in combination with devel
 `executespan` How many day's in future you can book in Albatros  
 `executetime` At which time is the next day activated  
 `browser` Browser type  
+`weburl_booking` Albatros URL  
+`weburl_crs_status` Course status URL  
+`weburl_crs_layout` Course layout URL
+
 `developermode` If **1** booking will not be send  
-`fastbootmode` Backend boots faster and skips "course status", "course layout" check  
-`weburl` Albatros URL
+`debugmessages` Print out developer messages  
+`fastbootmode` Backend boots faster and skips "course status", "course layout" check
+
 
 ### Change IP adress for frontend
 `Frontend/index.py`
@@ -113,7 +114,7 @@ bash /home/<path to your Albatros folder>/bootAlbatrosService.sh
 ```
 Navigate to your Albatros folder  
 Open `bootAlbatrosService.sh` with `sudo nano bootAlbatrosService.sh`  
-Change the path to your files
+Change the path to your main file
 ```shell script
 #!/bin/sh
 xterm -e python3 /home/ubuntu/AlbatrosReservation/main.py &

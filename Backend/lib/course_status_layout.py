@@ -1,14 +1,16 @@
 '''
 #############################################################################################
-@brief Browser functions for course layout
+@brief Browser functions for course layout and course status
 #############################################################################################
 '''
 
 import os
 import yaml
+import re
 
 from .logging import log, log_warning, log_error
 from .basic_actions import CBasicActions
+from datetime import datetime
 from selenium.webdriver.common.by import By
 
 class CCourseLayout(CBasicActions):
@@ -18,8 +20,7 @@ class CCourseLayout(CBasicActions):
 
     def start_browser_course_layout(self):
         # Load website
-        self.Driver.get('https://golfclubliebenstein.de/platzbenutzung')
-
+        self.Driver.get(self.Settings.TemplateDocument['weburl_crs_layout'])
         # Parse course layout
         return self.parse_course_layout()
 
@@ -36,7 +37,11 @@ class CCourseLayout(CBasicActions):
             if i == 0:
                 day = entry.text
             elif i == 1:
-                date = entry.text
+                matchPattern = re.search("^[^0-9]*([0-9]{1,2}\.[0-9]{1,2}\.[0-9]{4}).*$", entry.text)
+                if matchPattern is not None:
+                    date = matchPattern.group(1)
+                else:
+                    date = None
             elif i == 2:
                  course18 = entry.text
             elif i == 3:
@@ -46,24 +51,38 @@ class CCourseLayout(CBasicActions):
             elif i == 5:
                 comment = entry.text
                 # Only if we could parse the information create entry
-                if course9 != '' and course18 != '' and len(date.split('.')) == 3:
+                if course9 != '' and course18 != '' and date is not None:
                     courseLayout[date] = CLayout(day, date, course18, course9, pinPos, comment)
+                else:
+                    log_warning('Could not parse date. Storage condition not met')
                 i = -1
 
             i = i + 1
 
+        lastLayoutUpdate = datetime.now()
         # Create dict we can save without python objects
         target = dict()
         for date in courseLayout:
-            target[date] = {'date':date, 'day':courseLayout[date].Day, 'course18':courseLayout[date].Course18_Text, 'course9':courseLayout[date].Course9_Text, 'pinpos':courseLayout[date].PinPos, 'comment':courseLayout[date].Comment}
+            target[date] = {'date':date,
+                            'day':courseLayout[date].Day,
+                            'course18':courseLayout[date].Course18_Text,
+                            'course9':courseLayout[date].Course9_Text,
+                            'pinpos':courseLayout[date].PinPos,
+                            'comment':courseLayout[date].Comment,
+                            'timestamp':lastLayoutUpdate}
 
         return target
 
     # ----------------------------------------------------------
 
+class CCourseStatus(CBasicActions):
+
+    def __init__(self):
+        pass
+
     def start_browser_course_status(self):
         # Load website
-        self.Driver.get('https://www.golfclubliebenstein.de/')
+        self.Driver.get(self.Settings.TemplateDocument['weburl_crs_status'])
 
         # Parse course status
         return self.parse_course_status()
@@ -87,7 +106,10 @@ class CCourseLayout(CBasicActions):
             elif i > 5:
                 break
 
-            i = i +1
+            i = i + 1
+
+        # Set last course status update to now
+        courseStatus['timestamp'] = datetime.now()
 
         return courseStatus
 
