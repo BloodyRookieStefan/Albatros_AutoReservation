@@ -1,6 +1,6 @@
 '''
 #############################################################################################
-@brief Browser functions for course layout
+@brief Browser functions for course layout and course status
 #############################################################################################
 '''
 
@@ -20,7 +20,7 @@ class CCourseLayout(CBasicActions):
 
     def start_browser_course_layout(self):
         # Load website
-        self.Driver.get('https://golfclubliebenstein.de/platzbenutzung')
+        self.Driver.get(self.Settings.TemplateDocument['weburl_crs_layout'])
         # Parse course layout
         return self.parse_course_layout()
 
@@ -75,9 +75,14 @@ class CCourseLayout(CBasicActions):
 
     # ----------------------------------------------------------
 
+class CCourseStatus(CBasicActions):
+
+    def __init__(self):
+        pass
+
     def start_browser_course_status(self):
         # Load website
-        self.Driver.get('https://www.golfclubliebenstein.de/')
+        self.Driver.get(self.Settings.TemplateDocument['weburl_crs_status'])
 
         # Parse course status
         return self.parse_course_status()

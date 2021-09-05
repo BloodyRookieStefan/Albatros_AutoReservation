@@ -30,7 +30,6 @@ class ExecutionController:
     ExecutionTime_Start = None
     ExecutionTime_Stop = None
     Browser = None
-    InitialisationDone = False
     # Parsed timeslots and weather forecast
     Timeslots = None
     WeatherForecast = None
@@ -46,7 +45,6 @@ class ExecutionController:
         print('Startup Backend - Params: developmode={0}, fastbootmode={1}, debugmessages={2}...'.format(Backend.lib.settings.TemplateDocument['developermode'], Backend.lib.settings.TemplateDocument['fastbootmode'], Backend.lib.settings.TemplateDocument['debugmessages']))
         self.Pipe = CPipe(conn, Backend.lib.settings.TemplateDocument['debugmessages'])
         indleTimeInSec = 0.1
-        self.InitialisationDone = False
 
         Backend.lib.log('Entry - MAIN loop')
 
@@ -64,28 +62,13 @@ class ExecutionController:
                     # Do nothing in this case
                     pass
                 else:
-                    self.run_course_layout()
+                    self.run_course_status_layout()
                 self.LastLayoutCheck = datetime.now()
                 Backend.lib.log('Course Layout & Course Status list updated at {}'.format(self.LastLayoutCheck))
             # ----------------------------------------------
             # New execution in progress when we found a settings file
             # ----------------------------------------------
             if Backend.lib.settings.Document is not None:
-                # Do initialisation 10 minutes before official execution
-                if Backend.lib.settings.Document['executiontime_converted'] < datetime.now() + timedelta(minutes=10) and not self.InitialisationDone:
-                    Backend.lib.log('Doing initialisation at {}'.format(datetime.now()))
-                    if Backend.lib.settings.Document['use_nice_weather_golfer']:
-                        conditionMet = self.run_weather_forecast()
-                        if not conditionMet:
-                            Backend.lib.log_warning('Weather condition not met. Skip booking')
-                            self.endBookingSession()
-                        else:
-                            Backend.lib.log('Weather condition met')
-                    else:
-                        Backend.lib.log('Skip weather forecast because function disabled')
-                    Backend.lib.log('Initialisation done')
-                    self.InitialisationDone = True
-
                 # Check if execution time is reached => Start 60 seconds early
                 if Backend.lib.settings.Document is not None and Backend.lib.settings.Document['executiontime_converted'] < datetime.now() + timedelta(seconds=60):
                     Backend.lib.log('New execution time reached at {}'.format(datetime.now()))
@@ -98,19 +81,7 @@ class ExecutionController:
                 time.sleep(indleTimeInSec)
             # ----------------------------------------------
 
-    def init_new_request(self):
-        # Clear previous run
-        self.BrowserType = None
-        self.Timeslots = None
-        self.WeatherForecast = None
-        self.InitialisationDone = False
-
-        if Backend.lib.settings.Document['browser'].lower() == 'chrome':
-            self.BrowserType = Backend.lib.BrowserType.Chrome
-        else:
-            raise Exception('Unknown browser type', Backend.lib.settings.Document['browser'])
-
-    def run_course_layout(self):
+    def run_course_status_layout(self):
         i = 0
         maxTries = 5
         success = False
@@ -118,8 +89,14 @@ class ExecutionController:
             try:
                 self.CourseStatus = None
                 self.CourseLayout = None
+
                 # Start browser
-                self.start_browser_course_layout()
+                self.Browser = Backend.lib.CBrowser(Backend.lib.BrowserType.Chrome, Backend.lib.settings)
+                Backend.lib.log('Start browser COURSE STATUS update...')
+                self.CourseStatus = self.Browser.start_browser_course_status()
+                Backend.lib.log('Start browser COURSE LAYOUT update...')
+                self.CourseLayout = self.Browser.start_browser_course_layout()
+
                 success = True
             except Exception as e:
                 Backend.lib.log_error('Could not run course layout: {0}'.format(str(e)))
@@ -130,66 +107,17 @@ class ExecutionController:
 
             self.Browser.dispose()
 
-    def run_weather_forecast(self):
-        i = 0
-        maxTries = 3
-        success = False
-        while i < maxTries and not success:
-            try:
-                # Start browser
-                self.WeatherForecast = None
-                self.WeatherForecast = self.start_browser_weather_forecast()
-                success = True
-            except Exception as e:
-                Backend.lib.log_error('Could not run weather forecast: {0}'.format(str(e)))
-                self.WeatherForecast = dict()
-                i = i + 1
-
-            self.Browser.dispose()
-
-        # Check if weather meets requirements
-        # Get weather in timslot range
-        dayForeCast = None
-        for date in self.WeatherForecast:
-            day = self.WeatherForecast[date]
-            if day.Date is not None and day.Date == Backend.lib.settings.Document['date_converted']:
-                dayForeCast = day
-                break
-
-        if dayForeCast is None:
-            return False
-
-        temp = []
-        chanceOfRain = []
-        maxWind = []
-
-        for time in dayForeCast.Temp:
-            if time >= Backend.lib.settings.Document['round'][0]['timeslot_timespan_start'].hour and time <= Backend.lib.settings.Document['round'][0]['timeslot_timespan_end'].hour:
-                temp.append(float(dayForeCast.Temp[time]))
-                chanceOfRain.append(float(dayForeCast.ChanceOfRain[time]))
-                maxWind.append(float(dayForeCast.Wind[time].replace(',', '.')))
-
-        av_temp = sum(temp) / len(temp)
-        av_chanceOfRain = sum(chanceOfRain) / len(chanceOfRain)
-        av_maxWind = sum(maxWind) / len(maxWind)
-
-        if av_temp < Backend.lib.settings.Document['minTemp_deg'] or av_chanceOfRain > Backend.lib.settings.Document['maxRainChange_perc'] or av_maxWind > Backend.lib.settings.Document['maxWind_km/h']:
-            return False
-        else:
-            return True
-
     def run_course_booking(self):
 
         # Get execution time start
         self.ExecutionTime_Start = time.time()
 
-        # Start browser
         self.Timeslots = None
-        self.Timeslots = self.start_browser_course_booking()
+        # Start browser
+        Backend.lib.log('Start browser COURSE BOOKING...')
+        self.Browser = Backend.lib.CBrowser(Backend.lib.BrowserType.Chrome, Backend.lib.settings)
+        self.Timeslots = self.Browser.start_browser_course_booking()
 
-        # TODO Try until success, when first one is already faster booked
-        # TODO: Have also max tries
-        # TODO: Try catch?
         i = 0
         maxTries = 5
         success = False
@@ -218,6 +146,7 @@ class ExecutionController:
                 result = self.Browser.partner_reservation(_id=0)
                 if result:
                     self.Browser.send_reservation()
+                    # TODO: Check if reservation was successful?
                 else:
                     Backend.lib.log_warning('Not all partners could be found. Skip reservation')
                 success = True
@@ -243,27 +172,7 @@ class ExecutionController:
     def endBookingSession(self):
         Backend.lib.log('Execution done')
         # Execution done
-        self.InitialisationDone = False
         Backend.lib.settings.Document = None
-
-    # region Start browser
-    def start_browser_course_layout(self):
-        self.Browser = Backend.lib.CBrowser(Backend.lib.BrowserType.Chrome, Backend.lib.settings)
-        Backend.lib.log('Start browser COURSE STATUS update...')
-        self.CourseStatus = self.Browser.start_browser_course_status()
-        Backend.lib.log('Start browser COURSE LAYOUT update...')
-        self.CourseLayout = self.Browser.start_browser_course_layout()
-
-    def start_browser_weather_forecast(self):
-        Backend.lib.log('Start browser WEATHER FORECAST update...')
-        self.Browser = Backend.lib.CBrowser(Backend.lib.BrowserType.Chrome, Backend.lib.settings)
-        return self.Browser.start_browser_wheater_forecast()
-
-    def start_browser_course_booking(self):
-        Backend.lib.log('Start browser COURSE BOOKING...')
-        self.Browser = Backend.lib.CBrowser(Backend.lib.BrowserType.Chrome, Backend.lib.settings)
-        return self.Browser.start_browser_course_booking()
-    #endregion
 
     def pipe_handler(self):
         # Check if new request is available
