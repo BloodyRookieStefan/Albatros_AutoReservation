@@ -2,8 +2,10 @@
 ## Description
 Auto booking for Albatrosservice Liebenstein [www.albatros.gc-sl.de/albport](https://albatros.gc-sl.de/albport/index.jsp?language=de&sid=7549441721F84A3CB517BA19E42010D6)
 ## Requirements
-* Python 3.7 [www.python.org](https://www.python.org/)
-* Selenium package
+* Python 3.9 [www.python.org](https://www.python.org/)
+* Selenium package [Python selenium](https://selenium-python.readthedocs.io/installation.html#installing-python-bindings-for-selenium)
+* Flask package [Python flask](https://flask.palletsprojects.com/en/2.1.x/installation/#install-flask)
+* YAML package [Python yaml](https://pyyaml.org/wiki/PyYAMLDocumentation)
 * Chrome webbrowser [www.google.de/chrome](https://www.google.de/chrome/?brand=CHBD&gclid=EAIaIQobChMI_8T96KrM8AIVCm8YCh3TGQYuEAAYASAAEgI32_D_BwE&gclsrc=aw.ds)
 ## How to install on Raspberry PI 4
 * Install Ubuntu 20.04 LTS [www.ubuntu.com](https://ubuntu.com/download/raspberry-pi)

@@ -34,8 +34,8 @@ def thread_init(conn):
     global Pipe, BackendBooted
     Pipe = CPipe(conn, TemplateDocument['debugmessages'])
     BackendBooted = False
-    app.run()
-    #app.run('192.168.59.100')
+    app.run(port=80)
+    #app.run('192.168.59.100', port=80)
 
 def get_formated_date(date):
     # Day

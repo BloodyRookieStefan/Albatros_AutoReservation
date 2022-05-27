@@ -18,6 +18,15 @@ class CCourseLayout(CBasicActions):
     def __init__(self):
         pass
 
+    def regExMatch(self, input, regex, group, failLog=True):
+        regMatch = re.search(regex, input)
+        if regMatch:
+            return re.search(regex, input).group(group)
+        else:
+            if failLog:
+                log_warning(f'Regex error: "{input}" does not match regex "{regex}" with group "{group}"')
+            return None
+
     def start_browser_course_layout(self):
         # Load website
         self.Driver.get(self.Settings.TemplateDocument['weburl_crs_layout'])
@@ -27,51 +36,54 @@ class CCourseLayout(CBasicActions):
     def parse_course_layout(self):
         # Setup dict
         courseLayout = dict()
-        # Wait until loaded
-        self.wait_until_tag_is_present(_type=By.ID, _tag='tablepress-1')
-        # Get table
-        tableEntries = self.Driver.find_elements_by_xpath("//*[@id='tablepress-1']/tbody/tr/td")
-        # Parse table
-        i = 0
-        for entry in tableEntries:
-            if i == 0:
-                day = entry.text
-            elif i == 1:
-                matchPattern = re.search("^[^0-9]*([0-9]{1,2}\.[0-9]{1,2}\.[0-9]{4}).*$", entry.text)
-                if matchPattern is not None:
-                    date = matchPattern.group(1)
-                else:
-                    date = None
-            elif i == 2:
-                 course18 = entry.text
-            elif i == 3:
-                 course9 = entry.text
-            elif i == 4:
-                pinPos = entry.text
-            elif i == 5:
-                comment = entry.text
-                # Only if we could parse the information create entry
-                if course9 != '' and course18 != '' and date is not None:
-                    courseLayout[date] = CLayout(day, date, course18, course9, pinPos, comment)
-                else:
-                    log_warning('Could not parse date. Storage condition not met')
-                i = -1
-
-            i = i + 1
-
+        # Get timestamp
         lastLayoutUpdate = datetime.now()
-        # Create dict we can save without python objects
-        target = dict()
-        for date in courseLayout:
-            target[date] = {'date':date,
-                            'day':courseLayout[date].Day,
-                            'course18':courseLayout[date].Course18_Text,
-                            'course9':courseLayout[date].Course9_Text,
-                            'pinpos':courseLayout[date].PinPos,
-                            'comment':courseLayout[date].Comment,
-                            'timestamp':lastLayoutUpdate}
+        # Wait until loaded
+        self.wait_until_tag_is_present(_type=By.ID, _tag='platzbelegungPreview')
+        # Get table
+        table = self.Driver.find_elements(by=By.XPATH, value="//div[@id='platzbelegungPreview']/div[@class='inside']/div[@class='belegung voll']")
+        # Run trough all entries
+        i = 0
+        for entry in table:
+            i += 1
 
-        return target
+            # Parse day/date and pin
+            datePin = entry.find_elements(by=By.XPATH, value=".//div[@class='row datePin']")
+            if len(datePin) == 1:
+                day = self.regExMatch(input=datePin[0].text, regex='^([aA-zZ]+),', group=0)
+                date = self.regExMatch(input=datePin[0].text, regex='([0-9]+\.[0-9]+\.[0-9]+)', group=0)
+                pinpos = self.regExMatch(input=datePin[0].text, regex='\nPin: ([0-9]+)', group=0)
+            else:
+                log_warning(f'Unexpected length for datePin "{len(datePin)}"')
+
+            # Extract course and comments
+            rowNine = entry.find_elements(by=By.XPATH, value=".//div[@class='row platz nine']")
+            if len(rowNine) == 1:
+                course9 = self.regExMatch(input=rowNine[0].text, regex=': ([aA-zZ]+)', group=0)
+                comment9 = self.regExMatch(input=rowNine[0].text, regex='\n(.*)$', group=0, failLog=False)
+            else:
+                log_warning(f'Unexpected length for row 9 "{len(rowNine)}"')
+            rowEighteen = entry.find_elements(by=By.XPATH, value=".//div[@class='row platz eighteen']")
+            if len(rowEighteen) == 1:
+                course18 = self.regExMatch(input=rowEighteen[0].text, regex=': ([aA-zZ]+)', group=0)
+                comment18 = self.regExMatch(input=rowEighteen[0].text, regex='\n(.*)$', group=0, failLog=False)
+            else:
+                log_warning(f'Unexpected length for row 9 "{len(rowEighteen)}"')
+
+            # When one of these could not be parsed => Skipp
+            if date is None or course9 is None or course18 is None:
+                continue
+
+            courseLayout[date] = {'date': date,
+                                  'day': day,
+                                  'course9': course9,
+                                  'course18': course18,
+                                  'pinpos': pinpos,
+                                  'commentNine': comment9,
+                                  'commentEighteen': comment18,
+                                  'timestamp': lastLayoutUpdate}
+
+        return courseLayout
 
     # ----------------------------------------------------------
 
@@ -91,22 +103,21 @@ class CCourseStatus(CBasicActions):
         # Setup dict
         courseStatus = dict()
         # Wait until loaded
-        self.wait_until_tag_is_present(_type=By.ID, _tag='tablepress-2')
-        # Get table
-        tableEntries = self.Driver.find_elements_by_xpath("//*[@id='tablepress-2']/tbody/tr/td")
+        self.wait_until_tag_is_present(_type=By.ID, _tag='homePlatzinfos')
 
-        i = 0
-        for entry in tableEntries:
-            if i == 1:
-                courseStatus['YELLOW'] = entry.text
-            elif i == 3:
-                courseStatus['RED'] = entry.text
-            elif i == 5:
-                courseStatus['BLUE'] = entry.text
-            elif i > 5:
-                break
+        # Extract information from table by using xPath
+        xPathToTable = "//div[@id='homePlatzinfos']/div/div[@class='mid full container']"
+        xPathToTable_Nine = f"{xPathToTable}/div[@class='entry half loch neunLoch sommer']/div[@class='description']"
+        tableNine = self.Driver.find_elements_by_xpath(xPathToTable_Nine)
+        textNine = tableNine[0].text
 
-            i = i + 1
+        xPathToTable_Eighteen = f"{xPathToTable}/div[@class='entry half loch achtzehnLoch sommer']/div[@class='description']"
+        tableEighteen = self.Driver.find_elements_by_xpath(xPathToTable_Eighteen)
+        textEighteen = tableEighteen[0].text
+
+        # Save text from website
+        courseStatus['NINE'] = textNine
+        courseStatus['EIGHTEEN'] = textEighteen
 
         # Set last course status update to now
         courseStatus['timestamp'] = datetime.now()

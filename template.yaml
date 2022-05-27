@@ -27,9 +27,9 @@ executespan         : 3                           # How many days before we can 
 executetime         : 21-00                       # Booking time e.g 21:00 O'Clock
 browser             : Chrome                      # Browser type. Currently Chrome only
 weburl_booking      : https://albatros.gc-sl.de/albport/index.jsp?language=de&sid=7549441721F84A3CB517BA19E42010D6
-weburl_crs_status   : https://www.golfclubliebenstein.de
-weburl_crs_layout   : https://www.golfclubliebenstein.de/platzbenutzung
+weburl_crs_status   : https://www.golfclub-liebenstein.de
+weburl_crs_layout   : https://www.golfclub-liebenstein.de/startzeiten-buchen
 # Develop
-developermode       : 0                           # Dev mode
-debugmessages       : 0                           # Print debug messages
+developermode       : 1                           # Dev mode
+debugmessages       : 1                           # Print debug messages
 fastbootmode        : 0                           # Only in combination with developermode = 1

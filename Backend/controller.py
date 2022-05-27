@@ -42,7 +42,7 @@ class ExecutionController:
         pass
 
     def main(self, conn):
-        print('Startup Backend - Params: developmode={0}, fastbootmode={1}, debugmessages={2}...'.format(Backend.lib.settings.TemplateDocument['developermode'], Backend.lib.settings.TemplateDocument['fastbootmode'], Backend.lib.settings.TemplateDocument['debugmessages']))
+        print('Startup Backend - Params: developmode={0}, fastbootmode={1}, debugmessages={2} ...'.format(Backend.lib.settings.TemplateDocument['developermode'], Backend.lib.settings.TemplateDocument['fastbootmode'], Backend.lib.settings.TemplateDocument['debugmessages']))
         self.Pipe = CPipe(conn, Backend.lib.settings.TemplateDocument['debugmessages'])
         indleTimeInSec = 0.1
 
@@ -62,7 +62,9 @@ class ExecutionController:
                     # Do nothing in this case
                     pass
                 else:
+                    # Do layout check
                     self.run_course_status_layout()
+                # Save current timestamp
                 self.LastLayoutCheck = datetime.now()
                 Backend.lib.log('Course Layout & Course Status list updated at {}'.format(self.LastLayoutCheck))
             # ----------------------------------------------
@@ -70,7 +72,7 @@ class ExecutionController:
             # ----------------------------------------------
             if Backend.lib.settings.Document is not None:
                 # Check if execution time is reached => Start 60 seconds early
-                if Backend.lib.settings.Document is not None and Backend.lib.settings.Document['executiontime_converted'] < datetime.now() + timedelta(seconds=60):
+                if Backend.lib.settings.Document['executiontime_converted'] < datetime.now() + timedelta(seconds=60):
                     Backend.lib.log('New execution time reached at {}'.format(datetime.now()))
 
                     self.run_course_booking()
@@ -83,10 +85,10 @@ class ExecutionController:
 
     def run_course_status_layout(self):
         i = 0
-        maxTries = 5
+        maxTries = 3
         success = False
         while i < maxTries and not success:
-            try:
+            #try:
                 self.CourseStatus = None
                 self.CourseLayout = None
 
@@ -98,14 +100,14 @@ class ExecutionController:
                 self.CourseLayout = self.Browser.start_browser_course_layout()
 
                 success = True
-            except Exception as e:
-                Backend.lib.log_error('Could not run course layout: {0}'.format(str(e)))
-                self.CourseStatus = dict()
-                self.CourseLayout = dict()
-                i = i + 1
-                time.sleep(5)
+            #except Exception as e:
+            #    i = i + 1
+            #    Backend.lib.log_error(f'Could not run course layout: {str(e)}. Retry {i} of {maxTries}')
+            #    self.CourseStatus = dict()
+            #    self.CourseLayout = dict()
+            #    time.sleep(5)
 
-            self.Browser.dispose()
+            #self.Browser.dispose()
 
     def run_course_booking(self):
 
