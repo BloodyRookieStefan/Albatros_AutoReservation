@@ -11,10 +11,11 @@ from multiprocessing import Process, Pipe
 
 if __name__ == "__main__":
     frontend_conn, backend_conn = Pipe()
-    #pFrontend = Process(target=Frontend.thread_init, args=(frontend_conn,))
-    #pFrontend.start()
+    #Frontend.thread_init(backend_conn)
+    pFrontend = Process(target=Frontend.thread_init, args=(frontend_conn,))
+    pFrontend.start()
 
     backendInstance = Backend.ExecutionController()
-    backendInstance.main(backend_conn)
-    #pBackend = Process(target=backendInstance.main, args=(backend_conn,))
-    #pBackend.start()
+    #backendInstance.main(backend_conn)
+    pBackend = Process(target=backendInstance.main, args=(backend_conn,))
+    pBackend.start()

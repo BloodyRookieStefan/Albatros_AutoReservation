@@ -48,8 +48,8 @@ executespan         : 3                           # How many days before we can 
 executetime         : 21-00                       # Booking time
 browser             : Chrome                      # Browser type. Currently Chrome only
 weburl_booking      : https://albatros.gc-sl.de/albport/index.jsp?language=de&sid=7549441721F84A3CB517BA19E42010D6
-weburl_crs_status   : https://www.golfclubliebenstein.de
-weburl_crs_layout   : https://www.golfclubliebenstein.de/platzbenutzung
+weburl_crs_status   : https://www.golfclub-liebenstein.de
+weburl_crs_layout   : https://www.golfclub-liebenstein.de/startzeiten-buchen
 # Develop
 developermode       : 0                           # Dev mode
 debugmessages       : 0                           # Print debug messages
@@ -82,13 +82,13 @@ def thread_init(conn):
     app.run()
     #app.run('192.168.59.100')
 ```
-Following will run frontend on `127.0.0.1`
+Following will run frontend on `127.0.0.1` and port 80
 ```python
-app.run()
+app.run(port=80)
 ```
-Following will run frontend on `192.168.59.100`
+Following will run frontend on `192.168.59.100` and port 80
 ```python
-app.run("192.168.59.100")
+app.run("192.168.59.100", port=80)
 ```
 
 **Note**: Default port is 5000.  

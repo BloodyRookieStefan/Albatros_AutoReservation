@@ -114,9 +114,8 @@
             <hr style="height:2px;border-width:0;color:gray;background-color:gray">
             {% if courseStatusPresent %}
                 <p>Last update: {% if currentDateD == lastCourseUpdateD and currentDateM == lastCourseUpdateM and currentDateY == lastCourseUpdateY %}<textGreenUpdate>{{lastCourseUpdateD}}.{{lastCourseUpdateM}}.{{lastCourseUpdateY}}</textGreenUpdate> {% else %} <textRedUpdate>{{lastCourseUpdateD}}.{{lastCourseUpdateM}}.{{lastCourseUpdateY}}</textRedUpdate> {% endif %}
-                    Course Yellow: {% if courseStatus['YELLOW'].lower() == 'offen' %}<textGreen>{{courseStatus['YELLOW']}}</textGreen> {% else %} <textRed>{{courseStatus['YELLOW']}}</textRed> {% endif %}
-                    - Course Blue:{% if courseStatus['BLUE'].lower() == 'offen' %}<textGreen>{{courseStatus['BLUE']}}</textGreen> {% else %} <textRed>{{courseStatus['BLUE']}}</textRed> {% endif %}
-                    - Course Red: {% if courseStatus['RED'].lower() == 'offen' %}<textGreen>{{courseStatus['RED']}}</textGreen> {% else %} <textRed>{{courseStatus['RED']}}</textRed> {% endif %}
+                    - {% if 'spielbar' in courseStatus['NINE'].lower() %}<textGreen>{{courseStatus['NINE']}}</textGreen> {% else %} <textRed>{{courseStatus['NINE']}}</textRed> {% endif %}
+                    - {% if 'spielbar' in courseStatus['EIGHTEEN'].lower() %}<textGreen>{{courseStatus['EIGHTEEN']}}</textGreen> {% else %} <textRed>{{courseStatus['EIGHTEEN']}}</textRed> {% endif %}
             {% endif %}
             {% if courseLayoutPresent %}
             <div class="w3-container">
@@ -125,30 +124,34 @@
                     <th>Day</th>
                     <th>Date</th>
                     <th>18 Course</th>
-                    <th>9 Course</th>
-                    <th>PIN position</th>
                     <th>Comment</th>
+                    <th>9 Course</th>
+                    <th>Comment</th>
+                    <th>PIN position</th>
                   </tr>
-                  {% for i in courseLayout %}
-                    {% if courseLayout[i].date.split('.')[0] == currentDateD and courseLayout[i].date.split('.')[1] == currentDateM %}
+                  {% for i in courseLayout.keys() %}
+                    {% if courseLayout[i]['date'].split('.')[0] == currentDateD and courseLayout[i]['date'].split('.')[1] == currentDateM %}
                         <tr style="background-color:#76D7C4">
                     {% else %}
                         <tr>
                     {% endif %}
                     {% if courseLayout[i].day == 'Sonntag' or courseLayout[i].day == 'Samstag' %}
-                        <td><b>{{courseLayout[i].day}}</b></td>
-                        <td><b>{{courseLayout[i].date}}</b></td>
-                        <td><b>{{courseLayout[i].course18}}</b></td>
-                        <td><b>{{courseLayout[i].course9}}</b></td>
-                        <td><b>{{courseLayout[i].pinpos}}</b></td>
+                        <td><b>{{courseLayout[i]['day']}}</b></td>
+                        <td><b>{{courseLayout[i]['date']}}</b></td>
+                        <td><b>{{courseLayout[i]['course18']}}</b></td>
+                        <td><b>{{courseLayout[i]['commentEighteen']}}</b></td>
+                        <td><b>{{courseLayout[i]['course9']}}</b></td>
+                        <td><b>{{courseLayout[i]['commentNine']}}</b></td>
+                        <td><b>{{courseLayout[i]['pinpos']}}</b></td>
                     {% else %}
-                        <td>{{courseLayout[i].day}}</td>
-                        <td>{{courseLayout[i].date}}</td>
-                        <td>{{courseLayout[i].course18}}</td>
-                        <td>{{courseLayout[i].course9}}</td>
-                        <td>{{courseLayout[i].pinpos}}</td>
+                        <td>{{courseLayout[i]['day']}}</td>
+                        <td>{{courseLayout[i]['date']}}</td>
+                        <td>{{courseLayout[i]['course18']}}</td>
+                        <td>{{courseLayout[i]['commentEighteen']}}</td>
+                        <td>{{courseLayout[i]['course9']}}</td>
+                        <td>{{courseLayout[i]['commentNine']}}</td>
+                        <td>{{courseLayout[i]['pinpos']}}</td>
                     {% endif %}
-                    <td>{{courseLayout[i].comment}}</td>
                   </tr>
                   {% endfor %}
                 </table>

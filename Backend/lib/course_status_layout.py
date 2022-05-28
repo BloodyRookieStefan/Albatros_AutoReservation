@@ -65,7 +65,7 @@ class CCourseLayout(CBasicActions):
                 log_warning(f'Unexpected length for row 9 "{len(rowNine)}"')
             rowEighteen = entry.find_elements(by=By.XPATH, value=".//div[@class='row platz eighteen']")
             if len(rowEighteen) == 1:
-                course18 = self.regExMatch(input=rowEighteen[0].text, regex=': ([aA-zZ]+)', group=0)
+                course18 = self.regExMatch(input=rowEighteen[0].text, regex=': ([aA-zZ]+[ ][aA-zZ]+)', group=0)
                 comment18 = self.regExMatch(input=rowEighteen[0].text, regex='\n(.*)$', group=0, failLog=False)
             else:
                 log_warning(f'Unexpected length for row 9 "{len(rowEighteen)}"')
@@ -123,24 +123,3 @@ class CCourseStatus(CBasicActions):
         courseStatus['timestamp'] = datetime.now()
 
         return courseStatus
-
-class CLayout(CBasicActions):
-
-    Day = None
-    Date = None
-    Course18 = None
-    Course18_Text = None
-    Course9 = None
-    Course9_Text = None
-    PinPos = None
-    Comment = ''
-
-    def __init__(self, _day, _date, _course18, _course9, _pinPos, _comment):
-        self.Day = _day
-        self.Date = _date
-        self.Course18 = self.course_name_to_enum(_course18)
-        self.Course18_Text = _course18
-        self.Course9 = self.course_name_to_enum(_course9)
-        self.Course9_Text = _course9
-        self.PinPos = _pinPos
-        self.Comment = _comment

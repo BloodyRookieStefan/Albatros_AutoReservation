@@ -88,7 +88,7 @@ class ExecutionController:
         maxTries = 3
         success = False
         while i < maxTries and not success:
-            #try:
+            try:
                 self.CourseStatus = None
                 self.CourseLayout = None
 
@@ -100,14 +100,14 @@ class ExecutionController:
                 self.CourseLayout = self.Browser.start_browser_course_layout()
 
                 success = True
-            #except Exception as e:
-            #    i = i + 1
-            #    Backend.lib.log_error(f'Could not run course layout: {str(e)}. Retry {i} of {maxTries}')
-            #    self.CourseStatus = dict()
-            #    self.CourseLayout = dict()
-            #    time.sleep(5)
+            except Exception as e:
+                i = i + 1
+                Backend.lib.log_error(f'Could not run course layout: {str(e)}. Retry {i} of {maxTries}')
+                self.CourseStatus = dict()
+                self.CourseLayout = dict()
+                time.sleep(5)
 
-            #self.Browser.dispose()
+            self.Browser.dispose()
 
     def run_course_booking(self):
 
@@ -197,6 +197,6 @@ class ExecutionController:
 
         # Send boot message once
         if not self.Booted and self.LastLayoutCheck is not None:
-            print('Backend booted')
+            Backend.lib.log('Backend booted')
             self.Pipe.send_data(PipeOperation.BackendBooted)
             self.Booted = True
